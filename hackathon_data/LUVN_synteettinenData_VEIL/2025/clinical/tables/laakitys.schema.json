@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "row_count": 32060,
+  "columns": [
+    {
+      "name": "laakitys_avain",
+      "dtype": "String"
+    },
+    {
+      "name": "laakitys_aloituspvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "laakitys_paattymispvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "asiakas_id",
+      "dtype": "String"
+    },
+    {
+      "name": "ika",
+      "dtype": "Int64"
+    },
+    {
+      "name": "ikaluokka",
+      "dtype": "Int32"
+    },
+    {
+      "name": "henkilotunnus",
+      "dtype": "String"
+    },
+    {
+      "name": "sukupuoli",
+      "dtype": "String"
+    },
+    {
+      "name": "on_resepti",
+      "dtype": "Boolean"
+    },
+    {
+      "name": "vaikuttava_aine",
+      "dtype": "String"
+    },
+    {
+      "name": "atc_koodi",
+      "dtype": "String"
+    },
+    {
+      "name": "laakkeen_kayttotapa",
+      "dtype": "String"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

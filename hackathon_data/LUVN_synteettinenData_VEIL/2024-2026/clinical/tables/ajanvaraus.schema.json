@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "row_count": 120699,
+  "columns": [
+    {
+      "name": "ajanvaraus_id",
+      "dtype": "String"
+    },
+    {
+      "name": "kontakti_id",
+      "dtype": "String"
+    },
+    {
+      "name": "asiakas_id",
+      "dtype": "String"
+    },
+    {
+      "name": "ajanvaraus_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "ajanvaraus_tila",
+      "dtype": "String"
+    },
+    {
+      "name": "erikoisala_kansallinen_id",
+      "dtype": "String"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

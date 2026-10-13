@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "row_count": 639,
+  "columns": [
+    {
+      "name": "kotihoito_paatos_avain",
+      "dtype": "String"
+    },
+    {
+      "name": "henkilotunnus",
+      "dtype": "String"
+    },
+    {
+      "name": "ika",
+      "dtype": "Int64"
+    },
+    {
+      "name": "paatostunnus",
+      "dtype": "String"
+    },
+    {
+      "name": "paatostunnus_selite",
+      "dtype": "String"
+    },
+    {
+      "name": "paatoksen_tila",
+      "dtype": "String"
+    },
+    {
+      "name": "voimassaolo_alkaen_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "voimassaolo_paattymis_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "suunniteltu_palvelu",
+      "dtype": "String"
+    },
+    {
+      "name": "suunniteltu_palvelu_tunnus",
+      "dtype": "String"
+    },
+    {
+      "name": "onko_testiasiakas",
+      "dtype": "Boolean"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

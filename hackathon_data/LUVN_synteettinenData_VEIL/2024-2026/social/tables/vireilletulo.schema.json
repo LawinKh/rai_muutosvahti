@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "row_count": 6828,
+  "columns": [
+    {
+      "name": "vireilletulo_id",
+      "dtype": "String"
+    },
+    {
+      "name": "palvelu_id",
+      "dtype": "String"
+    },
+    {
+      "name": "paatos_id",
+      "dtype": "String"
+    },
+    {
+      "name": "selvitys_id",
+      "dtype": "String"
+    },
+    {
+      "name": "asiakas_id",
+      "dtype": "String"
+    },
+    {
+      "name": "onko_kiireellinen",
+      "dtype": "Boolean"
+    },
+    {
+      "name": "vireilletulo_nimi",
+      "dtype": "String"
+    },
+    {
+      "name": "vireilletulo_tyyppi_nimi",
+      "dtype": "String"
+    },
+    {
+      "name": "palvelutehtava_nimi",
+      "dtype": "String"
+    },
+    {
+      "name": "vireilletulo_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "vireilletulo_kasittely_alku_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "keskeytys_alkaen_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "keskeytys_saakka_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "onko_keskeytyneena",
+      "dtype": "Boolean"
+    },
+    {
+      "name": "keskeytyksen_syy",
+      "dtype": "String"
+    },
+    {
+      "name": "ika_vireilletulo",
+      "dtype": "Int32"
+    },
+    {
+      "name": "alue",
+      "dtype": "String"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "row_count": 177,
+  "columns": [
+    {
+      "name": "kotihoito_suunniteltu_palvelu_avain",
+      "dtype": "String"
+    },
+    {
+      "name": "kotihoito_suunnitelma_avain",
+      "dtype": "String"
+    },
+    {
+      "name": "henkilotunnus",
+      "dtype": "String"
+    },
+    {
+      "name": "suunniteltu_palvelu_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "palvelun_yksikko",
+      "dtype": "String"
+    },
+    {
+      "name": "suunniteltu_maara",
+      "dtype": "Int32"
+    },
+    {
+      "name": "suunnitelman_aikayksikko",
+      "dtype": "String"
+    },
+    {
+      "name": "kotihoito_palvelu_tunnus",
+      "dtype": "String"
+    },
+    {
+      "name": "kotihoito_palvelu_nimi",
+      "dtype": "String"
+    },
+    {
+      "name": "suunnitelman_voimassaolo_alkaen_pvm",
+      "dtype": "Datetime(time_unit='us', time_zone=None)"
+    },
+    {
+      "name": "suunnitelman_voimassaolo_paattymis_pvm",
+      "dtype": "Datetime(time_unit='us', time_zone=None)"
+    },
+    {
+      "name": "suunnitelman_tila",
+      "dtype": "String"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

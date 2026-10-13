@@ -1,0 +1,11 @@
+{
+  "versio": "1.0",
+  "kuvaus": "RAI Muutosvahti – synteettinen demoaineisto (SOTE AI Hackathon 2026)",
+  "viitepaiva": "2026-10-13",
+  "ammattilainen": {
+    "nimi": "Anna Esimerkki",
+    "rooli": "Kotihoidon vastuuhoitaja, RAI-arvioija",
+    "tiimi": "Kotihoito, Lohja-Vihti (demo)"
+  },
+  "asiakkaat": []
+}

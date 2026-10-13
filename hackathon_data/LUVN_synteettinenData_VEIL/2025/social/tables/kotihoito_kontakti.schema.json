@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "row_count": 23023,
+  "columns": [
+    {
+      "name": "kontakti_id",
+      "dtype": "String"
+    },
+    {
+      "name": "tapahtuma_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "kontaktin_kesto_yhteensa",
+      "dtype": "Int64"
+    },
+    {
+      "name": "kestoluokka",
+      "dtype": "String"
+    },
+    {
+      "name": "ika",
+      "dtype": "Int64"
+    },
+    {
+      "name": "henkilotunnus",
+      "dtype": "String"
+    },
+    {
+      "name": "kotikunta",
+      "dtype": "String"
+    },
+    {
+      "name": "kayntityyppi",
+      "dtype": "String"
+    },
+    {
+      "name": "yhteystapa",
+      "dtype": "String"
+    },
+    {
+      "name": "yhteystapa_ylataso",
+      "dtype": "String"
+    },
+    {
+      "name": "yhteystapa_koodi_kansallinen",
+      "dtype": "String"
+    },
+    {
+      "name": "yhteystapa_selite",
+      "dtype": "String"
+    },
+    {
+      "name": "kotihoito_palvelu_tunnus",
+      "dtype": "String"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "row_count": 2336,
+  "columns": [
+    {
+      "name": "palvelutarpeen_arviointi_avain",
+      "dtype": "String"
+    },
+    {
+      "name": "henkilotunnus",
+      "dtype": "String"
+    },
+    {
+      "name": "kunta",
+      "dtype": "String"
+    },
+    {
+      "name": "ika",
+      "dtype": "Int32"
+    },
+    {
+      "name": "alkaen_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "saakka_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "vireilletulo_pvm",
+      "dtype": "String"
+    },
+    {
+      "name": "vireilletulo_palvelutarpeen_arviointi_kasittelyaika",
+      "dtype": "String"
+    },
+    {
+      "name": "vireilletulo_palvelu_kasittelyaika_viikko_luokittelu",
+      "dtype": "String"
+    },
+    {
+      "name": "vireilletulo_palvelutarpeen_arviointi_kasittelyaika_tyopaivia",
+      "dtype": "String"
+    },
+    {
+      "name": "vireilletulo_palvelu_kasittelyaika_tyopaivia_viikko_luokittelu",
+      "dtype": "String"
+    },
+    {
+      "name": "palveluprosessi",
+      "dtype": "String"
+    },
+    {
+      "name": "palvelutarpeen_arvionti_tila",
+      "dtype": "String"
+    },
+    {
+      "name": "vireilletulo_avain",
+      "dtype": "String"
+    },
+    {
+      "name": "palvelutarpeen_arviointi",
+      "dtype": "String"
+    },
+    {
+      "name": "tuen_tarve_selite",
+      "dtype": "String"
+    },
+    {
+      "name": "suorituspaikan_nimi",
+      "dtype": "String"
+    },
+    {
+      "name": "tukilajin_nimi",
+      "dtype": "String"
+    },
+    {
+      "name": "asiakkuuden_nimi",
+      "dtype": "String"
+    },
+    {
+      "name": "palvelutarpeen_arviointi_luokiteltu",
+      "dtype": "String"
+    },
+    {
+      "name": "onko_testiasiakas",
+      "dtype": "Boolean"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

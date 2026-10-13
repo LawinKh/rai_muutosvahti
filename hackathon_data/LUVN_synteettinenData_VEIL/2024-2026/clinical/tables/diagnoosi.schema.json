@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "row_count": 121839,
+  "columns": [
+    {
+      "name": "diagnoosi_id",
+      "dtype": "String"
+    },
+    {
+      "name": "icd10_id",
+      "dtype": "String"
+    },
+    {
+      "name": "icd10_koodi_lahdejarjestelma",
+      "dtype": "String"
+    },
+    {
+      "name": "kontakti_id",
+      "dtype": "String"
+    },
+    {
+      "name": "asiakas_id",
+      "dtype": "String"
+    },
+    {
+      "name": "diagnoosi_aikaleima",
+      "dtype": "Datetime(time_unit='us', time_zone=None)"
+    },
+    {
+      "name": "diagnoosi_ensisijaisuus",
+      "dtype": "String"
+    },
+    {
+      "name": "onko_pitkaaikaisdiagnoosi",
+      "dtype": "Boolean"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

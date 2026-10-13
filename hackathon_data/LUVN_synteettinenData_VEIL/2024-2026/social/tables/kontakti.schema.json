@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "row_count": 323809,
+  "columns": [
+    {
+      "name": "kontakti_id",
+      "dtype": "String"
+    },
+    {
+      "name": "asiakas_id",
+      "dtype": "String"
+    },
+    {
+      "name": "tapahtuma_alku_aikaleima",
+      "dtype": "Datetime(time_unit='us', time_zone=None)"
+    },
+    {
+      "name": "tapahtuma_loppu_aikaleima",
+      "dtype": "Datetime(time_unit='us', time_zone=None)"
+    },
+    {
+      "name": "kesto_minuutit_kpl",
+      "dtype": "Int16"
+    },
+    {
+      "name": "yhteystapa_id",
+      "dtype": "String"
+    },
+    {
+      "name": "palvelutehtava_nimi",
+      "dtype": "String"
+    },
+    {
+      "name": "palvelu_id",
+      "dtype": "String"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

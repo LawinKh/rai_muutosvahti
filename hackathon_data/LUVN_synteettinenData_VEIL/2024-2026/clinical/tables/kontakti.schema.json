@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "row_count": 120699,
+  "columns": [
+    {
+      "name": "kontakti_id",
+      "dtype": "String"
+    },
+    {
+      "name": "asiakas_id",
+      "dtype": "String"
+    },
+    {
+      "name": "tapahtuma_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "tapahtuma_aikaleima",
+      "dtype": "Datetime(time_unit='us', time_zone=None)"
+    },
+    {
+      "name": "kesto_minuutit_kpl",
+      "dtype": "Int32"
+    },
+    {
+      "name": "yhteystapa_koodi_hilmo",
+      "dtype": "String"
+    },
+    {
+      "name": "erikoisala_kansallinen_id",
+      "dtype": "String"
+    },
+    {
+      "name": "hoidon_kiireellisyys_koodi_hilmo",
+      "dtype": "String"
+    },
+    {
+      "name": "hoidon_kiireellisyys_selite_hilmo",
+      "dtype": "String"
+    },
+    {
+      "name": "palvelumuoto_id",
+      "dtype": "String"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

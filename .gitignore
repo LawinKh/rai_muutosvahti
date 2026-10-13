@@ -1,0 +1,8 @@
+# Tapahtuman sisäiset dokumentit
+*.pdf
+
+# Käyttöjärjestelmä ja editorit
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/

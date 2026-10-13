@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "row_count": 1015,
+  "columns": [
+    {
+      "name": "asumisjakso_id",
+      "dtype": "String"
+    },
+    {
+      "name": "paatos_id",
+      "dtype": "String"
+    },
+    {
+      "name": "palvelu_id",
+      "dtype": "String"
+    },
+    {
+      "name": "asiakas_id",
+      "dtype": "String"
+    },
+    {
+      "name": "alkaen_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "saakka_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "palveluluokitus_nimi",
+      "dtype": "String"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

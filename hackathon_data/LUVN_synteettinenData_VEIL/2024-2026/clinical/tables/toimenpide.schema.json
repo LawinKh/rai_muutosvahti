@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "row_count": 29354,
+  "columns": [
+    {
+      "name": "toimenpide_id",
+      "dtype": "String"
+    },
+    {
+      "name": "kontakti_id",
+      "dtype": "String"
+    },
+    {
+      "name": "toimenpide_aikaleima",
+      "dtype": "Datetime(time_unit='us', time_zone=None)"
+    },
+    {
+      "name": "toimenpidekoodi_kansallinen",
+      "dtype": "String"
+    },
+    {
+      "name": "toimenpidekoodi_selite_kansallinen",
+      "dtype": "String"
+    },
+    {
+      "name": "toimenpide_lkm",
+      "dtype": "Int32"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

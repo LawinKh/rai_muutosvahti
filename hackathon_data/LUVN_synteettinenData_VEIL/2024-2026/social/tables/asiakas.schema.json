@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "row_count": 15000,
+  "columns": [
+    {
+      "name": "asiakas_id",
+      "dtype": "String"
+    },
+    {
+      "name": "henkilotunnus",
+      "dtype": "String"
+    },
+    {
+      "name": "kotikunta",
+      "dtype": "String"
+    },
+    {
+      "name": "sukupuoli",
+      "dtype": "String"
+    },
+    {
+      "name": "syntymavuosi",
+      "dtype": "Int32"
+    },
+    {
+      "name": "syntymapaiva",
+      "dtype": "Date"
+    },
+    {
+      "name": "kieli",
+      "dtype": "String"
+    },
+    {
+      "name": "onko_testiasiakas",
+      "dtype": "Boolean"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

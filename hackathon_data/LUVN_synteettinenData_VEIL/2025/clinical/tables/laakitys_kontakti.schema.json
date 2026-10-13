@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "row_count": 32060,
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  },
+  "columns": [
+    {
+      "name": "laakitys_avain",
+      "dtype": "String"
+    },
+    {
+      "name": "kontakti_id",
+      "dtype": "String"
+    }
+  ]
+}

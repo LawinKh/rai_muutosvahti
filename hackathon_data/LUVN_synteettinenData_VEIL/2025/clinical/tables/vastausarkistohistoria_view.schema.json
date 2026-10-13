@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "row_count": 6400,
+  "columns": [
+    {
+      "name": "Avain",
+      "dtype": "Int32"
+    },
+    {
+      "name": "asiakas_id",
+      "dtype": "String"
+    },
+    {
+      "name": "TapahtumatyyppiKoodi",
+      "dtype": "String"
+    },
+    {
+      "name": "TapahtumatyyppiSelite",
+      "dtype": "String"
+    },
+    {
+      "name": "KayntienLukumaara",
+      "dtype": "Int32"
+    },
+    {
+      "name": "TutkimusNumerotunnusAvain",
+      "dtype": "Int32"
+    },
+    {
+      "name": "SanallinenTutkimustulos",
+      "dtype": "String"
+    },
+    {
+      "name": "NumeerinenTutkimustulos",
+      "dtype": "Decimal(precision=18, scale=3)"
+    },
+    {
+      "name": "ViitearvonYlitys",
+      "dtype": "String"
+    },
+    {
+      "name": "TulokseenLiittyvaInfokentta",
+      "dtype": "String"
+    },
+    {
+      "name": "LiittyyLausuntoKoodi",
+      "dtype": "Int32"
+    },
+    {
+      "name": "LiittyyLausuntoSelite",
+      "dtype": "String"
+    },
+    {
+      "name": "TutkimuksenKiireellisyysSelite",
+      "dtype": "String"
+    },
+    {
+      "name": "EfficanKayntityyppi",
+      "dtype": "String"
+    },
+    {
+      "name": "HoidollinenErikoisalaLahetteeltaAvain",
+      "dtype": "Int32"
+    },
+    {
+      "name": "PaatutkimuksenNro",
+      "dtype": "String"
+    },
+    {
+      "name": "PaatutkimuksenLyhenne",
+      "dtype": "String"
+    },
+    {
+      "name": "NäytteenottoaikajaotteluTyoaikaMuuaika",
+      "dtype": "Int32"
+    },
+    {
+      "name": "NaytteenottoaikaPaiva",
+      "dtype": "Int32"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}

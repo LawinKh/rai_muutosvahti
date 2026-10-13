@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "row_count": 5280,
+  "columns": [
+    {
+      "name": "paatos_id",
+      "dtype": "String"
+    },
+    {
+      "name": "asiakas_id",
+      "dtype": "String"
+    },
+    {
+      "name": "paatos_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "paatos_alku_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "paatos_loppu_pvm",
+      "dtype": "Date"
+    },
+    {
+      "name": "onko_toistaiseksi_voimassa",
+      "dtype": "Boolean"
+    },
+    {
+      "name": "palveluluokitus_nimi",
+      "dtype": "String"
+    },
+    {
+      "name": "palvelutehtava_nimi",
+      "dtype": "String"
+    },
+    {
+      "name": "ratkaisu_laji",
+      "dtype": "String"
+    },
+    {
+      "name": "selvitys_id",
+      "dtype": "String"
+    }
+  ],
+  "encoding": {
+    "decimal": "exact string",
+    "date": "ISO 8601 date string",
+    "datetime": "ISO 8601 timestamp string; naive values retain source local wall time",
+    "null": "JSON null",
+    "empty_table": "zero-byte JSONL; columns retained in this sidecar"
+  }
+}
