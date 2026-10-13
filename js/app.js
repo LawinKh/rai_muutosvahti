@@ -252,7 +252,7 @@
       ${teemaNappi(" themebtn--login")}
       <div class="login">
         <section class="login__hero">
-          <div class="login__brand">${SVG.logo}<span>RAI Muutosvahti</span></div>
+          <a class="login__brand" href="index.html" aria-label="RAI Muutosvahti – etusivulle">${SVG.logo}<span>RAI Muutosvahti</span></a>
           <div style="position:relative;z-index:1">
             <p class="eyebrow" style="color:var(--hero-ink-2)">Haaste 1.1 · Esitietojen koonti</p>
             <h1 class="login__title">Oikeat tiedot oikealle ammattilaiselle.</h1>

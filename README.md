@@ -15,7 +15,7 @@ Aineistossa ei ole RAI-mittareita. **Lähtötilanteena** käytetään palvelutar
 
 **Aineiston rakentaminen** (PowerShell 5.1, ei asennuksia): `.\tools\rakenna-aineisto.ps1` → `js/data.js` ja `data/aineisto.json`. `-Ehdokkaat` listaa valittavissa olevat asiakkaat. Minimointi: terveystiedot vain lähtötilannetta edeltävältä vuodelta ja sen jälkeen, kotihoidon käynnit kuukausitasolla, ei henkilötunnuksia tai lomakkeiden laatijatietoja.
 
-**Käynnistys:** avaa `index.html` tai `kaynnista-sovellustilassa.cmd` (Edgen sovellustila). Toimii ilman verkkoyhteyttä.
+**Käynnistys:** avaa `index.html` (etusivu) tai suoraan `login.html` (kirjautuminen ja sovellus), tai `kaynnista-sovellustilassa.cmd` (Edgen sovellustila). Toimii ilman verkkoyhteyttä.
 
 | Tunnus | Rooli | Arviointitilanteet | Hoitosuhde |
 |---|---|---|---|
