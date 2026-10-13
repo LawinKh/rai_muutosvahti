@@ -100,7 +100,7 @@
     lomakkeet: {},   // rakenteiset arviot (PHQ-9, GAD-7, AUDIT)
     loki: [],
     analyysit: new Map(),
-    suodatin: { haku: "", tila: "kaikki", palvelu: "kaikki" },
+    suodatin: { haku: "", tila: "kaikki", palvelu: "kaikki", ind: "kaikki" },
     tl: "muutos",
     kv: { jakso: "kaikki", alue: "kaikki", kh: "kotikaynnit", mittari: null, laake: "kaikki", taulukko: false },
     asiakasId: null
@@ -185,6 +185,25 @@
   }
 
   const arvioitu = (s) => !!S.arviot[s.avain];
+
+  /* ---------- indikaattorit (violetti): ajoitus ja työjono, eivät muutoksia ---------- */
+  const IND_IKONI = {
+    aika: '<svg class="ind__icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 4.5V8l2.4 1.6"/></svg>',
+    jono: '<svg class="ind__icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="11" height="11" rx="2.5"/><path d="M5.2 8.2 7.2 10 10.8 6"/></svg>',
+    palvelu: '<svg class="ind__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 7.5 8 3l5.5 4.5V13h-11z"/><path d="M6 10.5h4"/></svg>'
+  };
+  function indikaattorit(a, an) {
+    const out = [];
+    const j = an.seuranta.jaljella;
+    if (j < 0) out.push({ id: "rai", ikoni: "aika", teksti: `RAI-arvio myöhässä ${-j} vrk`, tt: `RAI-seuranta-arvio olisi ollut ajankohtainen ${fmtPvm(an.seuranta.erapaiva)} (6 kk lähtötilanteesta ${fmtPvm(an.lahtoPvm)}). Aineistossa ei ole tietoa tehdyistä RAI-arvioinneista.` });
+    else if (j <= 30) out.push({ id: "rai", ikoni: "aika", teksti: `RAI-arvio ${j} vrk:n päästä`, tt: `RAI-seuranta-arvio ajankohtainen ${fmtPvm(an.seuranta.erapaiva)}.` });
+    const avoin = an.signaalit.filter((s) => (s.taso === "merkittava" || s.taso === "seurattava") && !arvioitu(s)).length;
+    if (avoin) out.push({ id: "jono", ikoni: "jono", teksti: `${avoin} havaintoa arvioimatta`, tt: "Merkittäviä tai seurattavia havaintoja, joita ammattilainen ei ole vielä arvioinut." });
+    const loppu = an.nakyma.sosTapahtumat.filter((s) => (s.laji === "palvelu") && s.loppu && s.loppu > an.lahtoPvm && s.loppu <= an.viite).pop();
+    if (loppu) out.push({ id: "palvelu", ikoni: "palvelu", teksti: `${PALVELU_LYHYT[loppu.nimi] || loppu.nimi} päättynyt ${erotusPv(an.viite, loppu.loppu)} vrk sitten`, tt: `${loppu.nimi} päättyi ${fmtPvm(loppu.loppu)}.` });
+    return out;
+  }
+  const indHtml = (lista) => (lista.length ? `<div class="inds">${lista.map((i) => `<span class="ind" data-tt="${esc(i.tt)}">${IND_IKONI[i.ikoni]}${esc(i.teksti)}</span>`).join("")}</div>` : "");
   function avoimetSignaalit() {
     const out = [];
     for (const { a, an } of omatAnalyysit())
@@ -570,6 +589,7 @@
           <div class="hero__vizfoot">
             <span><strong>${tietueet}</strong> tietuetta koottu automaattisesti</span>
             <span><strong>${avoimet}</strong> havaintoa arvioimatta</span>
+            <span class="hero__ind">${IND_IKONI.aika}<strong>${rivit.filter(({ an }) => an.seuranta.jaljella < 0).length}</strong> RAI-arviota myöhässä</span>
           </div>
           <p class="hero__note">Värit kuvaavat tarkistamisen tarvetta, eivät asiakkaan riskiä tai palvelutarvetta.</p>
         </div>
@@ -589,6 +609,7 @@
           </div>
         </div>
         <label class="field">Palvelu<select id="fPalvelu">${opt("kaikki", "Kaikki palvelut", f.palvelu)}${palvelut.map((p) => opt(p, p, f.palvelu)).join("")}</select></label>
+        <label class="field">Indikaattori<select id="fInd">${[["kaikki", "Kaikki"], ["rai", "RAI-arvio myöhässä tai lähestyy"], ["jono", "Havaintoja arvioimatta"], ["palvelu", "Palvelu päättynyt"]].map(([k, n]) => opt(k, n, f.ind)).join("")}</select></label>
       </div>
       <div class="cards" id="lista"></div>`;
 
@@ -597,6 +618,7 @@
     $$("[data-seg]", app).forEach((b) => b.addEventListener("click", () => { f.tila = b.dataset.seg; $$("[data-seg]", app).forEach((x) => x.setAttribute("aria-pressed", String(x === b))); piirraLista(); }));
     $("#fHaku").addEventListener("input", (e) => { f.haku = e.target.value; piirraLista(); });
     $("#fPalvelu").addEventListener("change", (e) => { f.palvelu = e.target.value; piirraLista(); });
+    $("#fInd").addEventListener("change", (e) => { f.ind = e.target.value; piirraLista(); });
     piirraLista();
   }
 
@@ -629,6 +651,7 @@
         <span class="avatar avatar--${an.tila}">${esc(tunnus(a))}</span>
         <div class="ccard__name"><strong>${esc(nimi(a))}</strong><span>${a.ika} v · ${esc(sukupuoli(a.sukupuoli))} · ${esc(a.kotikunta)} · ${esc(PALVELU_LYHYT[a.lahto.palvelu] || a.lahto.palvelu)}</span>${status(an.tila)}</div>
       </div>
+      ${indHtml(indikaattorit(a, an))}
       ${iso && paa ? `<p class="ccard__lead"><strong>${esc(paa.otsikko)}.</strong> ${esc(paa.mitaMuuttui)}</p>` : ""}
       ${raiVali(a, an)}
       ${sig.length === 0 ? '<p class="ccard__lead small">Ei sääntöjen mukaan tarkistettavia muutoksia lähtötilanteeseen nähden.</p>' : chipit.length ? `<div class="ccard__chips">${chipit.map((s) => `<span class="chip"><span class="status status--${TASO_TILA[s.taso]}">${IKONI[TASO_TILA[s.taso]]}</span> ${esc(s.otsikko)}</span>`).join("")}</div>` : ""}
@@ -641,7 +664,7 @@
     const q = f.haku.trim().toLowerCase();
     const jarjestys = { punainen: 4, keltainen: 3, vihrea: 2, neutraali: 1 };
     const rivit = omatAnalyysit()
-      .filter(({ a, an }) => (f.tila === "kaikki" || an.tila === f.tila) && (f.palvelu === "kaikki" || a.lahto.palvelu === f.palvelu) && (!q || a.id.toLowerCase().includes(q) || a.kotikunta.toLowerCase().includes(q) || nimi(a).toLowerCase().includes(q)))
+      .filter(({ a, an }) => (f.tila === "kaikki" || an.tila === f.tila) && (f.palvelu === "kaikki" || a.lahto.palvelu === f.palvelu) && (f.ind === "kaikki" || indikaattorit(a, an).some((i) => i.id === f.ind)) && (!q || a.id.toLowerCase().includes(q) || a.kotikunta.toLowerCase().includes(q) || nimi(a).toLowerCase().includes(q)))
       .sort((x, y) => jarjestys[y.an.tila] - jarjestys[x.an.tila] || x.a.id.localeCompare(y.a.id));
     $("#lista").innerHTML = rivit.length ? rivit.map(({ a, an }) => asiakaskortti(a, an)).join("") : '<p class="empty">Ei hakua vastaavia asiakkaita.</p>';
   }
@@ -689,7 +712,7 @@
             <h1>${esc(nimi(a))}</h1>
             <div class="chead__meta"><span>${a.ika} v</span><span>${esc(sukupuoli(a.sukupuoli))}</span><span>${esc(a.kotikunta)}</span><span>Asiointikieli: ${esc(kieli(a.kieli))}</span><span>${esc(a.lahto.palvelu)}</span><span class="muted">${esc(a.id)}</span></div>
           </div>
-          ${status(an.tila, true, "pill")}
+          <div class="chead__status">${status(an.tila, true, "pill")}${indHtml(indikaattorit(a, an))}</div>
         </div>
         <div class="ctx">
           <span class="ctx__lbl">Rooli</span><span class="ctx__val">${esc(rooli().nimi)}</span>

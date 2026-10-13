@@ -594,6 +594,19 @@ code { font-size: .85em; background: var(--surface-2); border: 1px solid var(--b
   .ctx__val, .ctx__select { margin-right: 0; }
 }
 
+/* indikaattorit (violetti): ajoitus ja työjono – erillään muutosväreistä */
+:root { --ind: #6250d6; --ind-soft: #efedfc; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ind: #9085e9; --ind-soft: #2a2645; } }
+:root[data-theme="dark"] { --ind: #9085e9; --ind-soft: #2a2645; }
+.inds { display: flex; flex-wrap: wrap; gap: .35rem; }
+.ind { display: inline-flex; align-items: center; gap: .35rem; background: var(--ind-soft); border: 1px solid var(--ind); color: var(--ink); border-radius: 999px; padding: .15rem .6rem .15rem .45rem; font-size: .78rem; font-weight: 600; white-space: nowrap; }
+.ind__icon { width: 14px; height: 14px; flex: none; fill: none; stroke: var(--ind); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.chead__status { display: flex; flex-direction: column; align-items: flex-end; gap: .45rem; }
+.chead__status .inds { justify-content: flex-end; }
+.hero__ind { display: inline-flex; align-items: center; gap: .3rem; }
+.hero__ind .ind__icon { width: 15px; height: 15px; }
+@media (max-width: 640px) { .chead__status { align-items: flex-start; } .chead__status .inds { justify-content: flex-start; } }
+
 /* ---------- responsiivisuus ---------- */
 @media (max-width: 1040px) {
   .hero { grid-template-columns: minmax(0, 1fr); }
