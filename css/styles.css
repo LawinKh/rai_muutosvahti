@@ -529,7 +529,8 @@ code { font-size: .85em; background: var(--surface-2); border: 1px solid var(--b
 .chat__tabs { margin: .6rem .8rem 0; align-self: flex-start; }
 .chat__body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .chat__body iframe { flex: 1; width: 100%; border: 0; background: var(--surface-2); margin-top: .5rem; }
-.chat__note { padding: .8rem 1rem 0; }
+.chat__note { padding: .6rem 1rem .2rem; margin: 0; }
+#chatCopilot iframe { margin-top: .3rem; min-height: 0; }
 #chatCopilot .btn { margin: .4rem 1rem; align-self: flex-start; }
 .chat__log { flex: 1; overflow: auto; padding: .8rem; display: flex; flex-direction: column; gap: .5rem; }
 .msg { max-width: 90%; padding: .55rem .75rem; border-radius: 12px; font-size: .88rem; line-height: 1.45; }

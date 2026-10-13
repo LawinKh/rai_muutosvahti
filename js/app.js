@@ -19,8 +19,10 @@
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
   const root = $("#root");
 
-  const COPILOT_URL =
-    "https://copilotstudio.microsoft.com/environments/264bfa46-2de4-e3f7-a759-925d0f71914b/bots/kl_testiannahelpdesk_-QrDI8/webchat?__version__=2&enableFileAttachment=false&cliAgent=true";
+  // Copilot Studio -agentin osoite ja nimi: js/asetukset.js
+  const ASETUKSET = window.RAI_ASETUKSET || {};
+  const COPILOT_URL = ASETUKSET.copilotUrl || "";
+  const COPILOT_NIMI = ASETUKSET.copilotNimi || "Copilot Studio";
 
   /* =====================================================================
    * PAIKALLINEN TALLENNUS (ei asiakasaineistoa)
@@ -368,7 +370,7 @@
         </div>
         <div class="chat__tabs seg" role="group" aria-label="Avustajan valinta">
           <button type="button" data-chattab="paikallinen" aria-pressed="true">Paikallinen avustaja</button>
-          <button type="button" data-chattab="copilot" aria-pressed="false">Copilot Studio</button>
+          <button type="button" data-chattab="copilot" aria-pressed="false">${esc(COPILOT_NIMI)} (Copilot Studio)</button>
         </div>
         <div class="chat__body" id="chatLocal">
           <div class="chat__log" id="chatLog" aria-live="polite"></div>
@@ -376,8 +378,7 @@
           <form class="chat__form" id="chatForm"><input id="chatInput" autocomplete="off" placeholder="Kysy esim. ”mikä on muuttunut?”" aria-label="Kysymys"><button class="btn btn--primary btn--small" type="submit">Lähetä</button></form>
         </div>
         <div class="chat__body" id="chatCopilot" hidden>
-          <p class="small muted chat__note">Copilot Studio -agentti vaatii verkkoyhteyden ja organisaation DLP-hyväksynnän upotukselle. Demo toimii ilman sitä paikallisella avustajalla.</p>
-          <button class="btn btn--small" type="button" id="copilotLoad">Avaa Copilot Studio -agentti</button>
+          <p class="small muted chat__note" id="copilotNote">${COPILOT_URL ? `${esc(COPILOT_NIMI)} latautuu Copilot Studiosta (vaatii verkkoyhteyden). Jos ikkuna jää tyhjäksi, <a href="${esc(COPILOT_URL)}" target="_blank" rel="noopener">avaa agentti omaan välilehteen</a>.` : "Copilot Studio -agentin osoitetta ei ole asetettu (js/asetukset.js)."}</p>
         </div>
       </section>
       <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
@@ -393,12 +394,12 @@
       $$("[data-chattab]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
       $("#chatLocal").hidden = b.dataset.chattab !== "paikallinen";
       $("#chatCopilot").hidden = b.dataset.chattab !== "copilot";
+      // agentti ladataan ensimmäisellä avauskerralla ja pidetään auki (keskustelu säilyy välilehteä vaihdettaessa)
+      if (b.dataset.chattab === "copilot" && COPILOT_URL && !$("#chatCopilot iframe")) {
+        $("#chatCopilot").insertAdjacentHTML("beforeend", `<iframe src="${esc(COPILOT_URL)}" title="${esc(COPILOT_NIMI)} – Copilot Studio -agentti" allow="clipboard-write; microphone"></iframe>`);
+        lokiin({ asiakas: "–", toimenpide: `${COPILOT_NIMI}-agentti avattu` });
+      }
     }));
-    $("#copilotLoad").addEventListener("click", (e) => {
-      e.target.insertAdjacentHTML("afterend", `<iframe src="${esc(COPILOT_URL)}" title="Copilot Studio -agentti"></iframe>`);
-      e.target.remove();
-      lokiin({ asiakas: "–", toimenpide: "Copilot Studio -agentti avattu" });
-    });
     $("#chatForm").addEventListener("submit", (e) => { e.preventDefault(); const q = $("#chatInput").value.trim(); if (q) { $("#chatInput").value = ""; kysy(q); } });
     $("#modalClose").addEventListener("click", suljeModal);
     $("#modal").addEventListener("click", (e) => { if (e.target.id === "modal") suljeModal(); });
