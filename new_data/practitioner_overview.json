@@ -1,0 +1,182 @@
+{
+  "default": {
+    "title": "Esitiedot ennen tapaamista",
+    "sections": [
+      {
+        "key": "nykytilanne",
+        "label": "Nykytilanne ja asiakkaan tavoitteet",
+        "focus": "Tehtävän kannalta olennainen kirjattu nykytilanne ja asiakkaan omat tavoitteet.",
+        "empty": "Ei lähteistettyä tilannekuvausta tässä koosteessa."
+      },
+      {
+        "key": "olennaiset_muutokset",
+        "label": "Viimeaikaiset muutokset",
+        "focus": "Vain lähteessä nimenomaisesti kuvatut muutokset tai vertailukelpoisten päivättyjen tietojen erot. Yksittäinen taustatieto ei ole muutos. Käytä muutoksen osoittamiseen vain valittua koontipäivää edeltävän kuuden kalenterikuukauden aikana kirjattua lähdettä. Vanhempi lähde voi toimia vertailun lähtötietona, mutta ei yksin tue viimeaikaista muutosta. Älä päättele kirjauksen päivästä muutoksen alkamisajankohtaa.",
+        "empty": "Ei lähteistettyä muutostietoa kuuden viime kuukauden kirjauksista tässä koosteessa.",
+        "hint": "Muutokset, jotka on kirjattu valittua päivää edeltävän kuuden kuukauden aikana."
+      },
+      {
+        "key": "vastaanotolla_huomioitavaa",
+        "label": "Tapaamisessa huomioitavaa",
+        "focus": "Kirjatut sovitut jatkotoimet, asiakkaan kysymykset, toiveet ja ammattilaisen aiemmat huomiot. Ei uusia suosituksia.",
+        "empty": "Ei erillisiä lähteistettyjä huomioita tässä koosteessa."
+      },
+      {
+        "key": "varmistettavat_tiedot",
+        "label": "Varmistettavat tiedot",
+        "focus": "Vain lähteissä osoitetut ristiriidat, epävarmuudet ja avoimeksi kirjatut kysymykset. Älä keksi tarkistuslistaa.",
+        "empty": "Koosteeseen ei poimittu lähteistettyjä epäselvyyksiä. Tämä ei vahvista tietojen kattavuutta."
+      }
+    ]
+  },
+  "laakari": {
+    "title": "Lääkärin esitiedot ennen vastaanottoa",
+    "sections": [
+      {
+        "key": "nykytilanne",
+        "label": "Nykyinen vointi ja hoidon tausta",
+        "focus": "Vastaanoton tarkoitukseen liittyvät oireet, hoito ja lääkitys käyttöaiheineen sekä arjen toimintakyky, kotona saatava tuki, lääkkeiden ottamisessa saatu apu, hoidon toteutettavuus ja asiakkaan tavoitteet. Arvioi myös sosiaalihuollon lähteet; älä täytä koostetta rutiininomaisilla diagnoosi- tai lääkityslistoilla. Taustatiedot kuuluvat tähän, eivät muutoksiin.",
+        "empty": "Ei lähteistettyä tilannekuvausta tässä koosteessa."
+      },
+      {
+        "key": "olennaiset_muutokset",
+        "label": "Viimeaikaiset muutokset",
+        "focus": "Vain lähteessä kirjatut oireiden tai toimintakyvyn muutokset, hoidon muutokset tai päivättyjen vertailukelpoisten havaintojen erot. Älä esitä yksittäistä lääkitys-, diagnoosi- tai laboratoriotietoa muutoksena. Käytä muutoksen osoittamiseen vain valittua koontipäivää edeltävän kuuden kalenterikuukauden aikana kirjattua lähdettä. Vanhempi lähde voi toimia vertailun lähtötietona, mutta ei yksin tue viimeaikaista muutosta. Älä päättele kirjauksen päivästä muutoksen alkamisajankohtaa.",
+        "empty": "Ei lähteistettyä muutostietoa kuuden viime kuukauden kirjauksista tässä koosteessa.",
+        "hint": "Muutokset, jotka on kirjattu valittua päivää edeltävän kuuden kuukauden aikana."
+      },
+      {
+        "key": "vastaanotolla_huomioitavaa",
+        "label": "Vastaanotolla huomioitavaa",
+        "focus": "Kirjattu seuranta ja sovitut jatkotoimet, asiakkaan kysymykset sekä tehtävän kannalta olennaiset hoidon toteutettavuuden, arjen tuen tai asioinnin rajoitteet kaikissa sallituissa lähteissä. Älä tee uutta hoito- tai riskiarviota.",
+        "empty": "Ei erillisiä lähteistettyjä huomioita tässä koosteessa."
+      },
+      {
+        "key": "varmistettavat_tiedot",
+        "label": "Varmistettavat hoitotiedot",
+        "focus": "Lähteissä osoitetut lääkityksen, käyttöaiheen, hoidon toteutumisen, arjen tuen tai muiden tehtävään liittyvien tietojen ristiriidat ja epävarmuudet. Ei itse keksittyjä tutkimus- tai hoito-ohjeita.",
+        "empty": "Koosteeseen ei poimittu lähteistettyjä epäselvyyksiä. Tämä ei vahvista tietojen kattavuutta."
+      }
+    ]
+  },
+  "sosiaalityontekija": {
+    "title": "Sosiaalityöntekijän esitiedot ennen tapaamista",
+    "sections": [
+      {
+        "key": "nykytilanne",
+        "label": "Arki, avun tarve ja asiakkaan tavoitteet",
+        "focus": "Kirjattu arjessa selviytyminen, asiakkaan omat tavoitteet, tukiverkosto ja palvelut tehtävän rajoissa. Erota toteutuneet palvelut, päätökset ja suunnitelmaluonnokset.",
+        "empty": "Ei lähteistettyä tilannekuvausta tässä koosteessa."
+      },
+      {
+        "key": "olennaiset_muutokset",
+        "label": "Viimeaikaiset muutokset",
+        "focus": "Vain kirjatut muutokset arjessa, avun tarpeessa, tukiverkostossa tai palveluissa. Palvelupäätös ei yksin vahvista toteutumista eikä luonnos ole lopullinen päätös. Käytä muutoksen osoittamiseen vain valittua koontipäivää edeltävän kuuden kalenterikuukauden aikana kirjattua lähdettä. Vanhempi lähde voi toimia vertailun lähtötietona, mutta ei yksin tue viimeaikaista muutosta. Älä päättele kirjauksen päivästä muutoksen alkamisajankohtaa.",
+        "empty": "Ei lähteistettyä muutostietoa kuuden viime kuukauden kirjauksista tässä koosteessa.",
+        "hint": "Muutokset, jotka on kirjattu valittua päivää edeltävän kuuden kuukauden aikana."
+      },
+      {
+        "key": "vastaanotolla_huomioitavaa",
+        "label": "Tapaamisessa huomioitavaa",
+        "focus": "Asiakkaan kirjatut toiveet, asiointikieli, sovitut yhteydenotot, päätösten ja suunnitelmien tehtävälle olennaiset rajaukset. Ei uusia palvelusuosituksia tai päätöksiä.",
+        "empty": "Ei erillisiä lähteistettyjä huomioita tässä koosteessa."
+      },
+      {
+        "key": "varmistettavat_tiedot",
+        "label": "Selvitettävät palvelu- ja tukitiedot",
+        "focus": "Lähteissä avoimeksi kirjatut palvelun sisältö, määrä, aloitus, toteutuminen tai vastuut sekä osoitetut ristiriidat. Älä päättele puuttuvaa palvelua tai avuntarvetta.",
+        "empty": "Koosteeseen ei poimittu lähteistettyjä epäselvyyksiä. Tämä ei vahvista tietojen kattavuutta."
+      }
+    ]
+  },
+  "fysioterapeutti": {
+    "title": "Fysioterapeutin esitiedot ennen vastaanottoa",
+    "sections": [
+      {
+        "key": "nykytilanne",
+        "label": "Toimintakyky, oireet ja asiakkaan tavoitteet",
+        "focus": "Tehtävään liittyvä kirjattu liikkuminen ja arjen toimintakyky, oireet, apuvälineet, harjoittelu ja asiakkaan tavoitteet. Älä päättele avuntarvetta tai suorituskykyä diagnoosista.",
+        "empty": "Ei lähteistettyä tilannekuvausta tässä koosteessa."
+      },
+      {
+        "key": "olennaiset_muutokset",
+        "label": "Viimeaikaiset muutokset",
+        "focus": "Vain kirjatut muutokset oireissa, liikkumisessa, harjoittelussa tai päivättyjen saman mittarin tulosten erot. Säilytä mittarityyppi, yksiköt ja päivät. Älä päättele muutoksen syytä tai kliinistä merkitystä. Käytä muutoksen osoittamiseen vain valittua koontipäivää edeltävän kuuden kalenterikuukauden aikana kirjattua lähdettä. Vanhempi lähde voi toimia vertailun lähtötietona, mutta ei yksin tue viimeaikaista muutosta. Älä päättele kirjauksen päivästä muutoksen alkamisajankohtaa.",
+        "empty": "Ei lähteistettyä muutostietoa kuuden viime kuukauden kirjauksista tässä koosteessa.",
+        "hint": "Muutokset, jotka on kirjattu valittua päivää edeltävän kuuden kuukauden aikana."
+      },
+      {
+        "key": "vastaanotolla_huomioitavaa",
+        "label": "Tutkimisessa ja harjoittelussa huomioitavaa",
+        "focus": "Lähteisiin kirjatut harjoittelun rajoitteet, oireita provosoivat tilanteet, apuvälinejärjestelyt ja sovitut kuntoutuksen jatkotoimet. Älä keksi vasta-aiheita tai harjoitusohjeita.",
+        "empty": "Ei erillisiä lähteistettyjä huomioita tässä koosteessa."
+      },
+      {
+        "key": "varmistettavat_tiedot",
+        "label": "Varmistettavat toimintakyky- ja harjoittelutiedot",
+        "focus": "Lähteissä osoitetut ristiriidat tai avoimet kysymykset toimintakyvystä, mittauksista, harjoittelun toteutumisesta ja apuvälineistä. Ei lähteetöntä tutkimuslistaa.",
+        "empty": "Koosteeseen ei poimittu lähteistettyjä epäselvyyksiä. Tämä ei vahvista tietojen kattavuutta."
+      }
+    ]
+  },
+  "sairaanhoitaja": {
+    "title": "Sairaanhoitajan esitiedot ennen tapaamista",
+    "sections": [
+      {
+        "key": "nykytilanne",
+        "label": "Vointi, hoidon toteutuminen ja asiakkaan tavoitteet",
+        "focus": "Tehtävään liittyvä kirjattu vointi, oireet, hoidon toteutuminen, asiakkaan arki ja omat tavoitteet. Huomioi lääkkeiden ottamisessa saatu apu, kotona saatava tuki ja hoidon toteutettavuus, kun lähteet käsittelevät niitä. Taustatiedot kuuluvat tähän, eivät muutoksiin.",
+        "empty": "Ei lähteistettyä tilannekuvausta tässä koosteessa."
+      },
+      {
+        "key": "olennaiset_muutokset",
+        "label": "Viimeaikaiset muutokset",
+        "focus": "Vain lähteessä kirjatut muutokset voinnissa, oireissa, hoidon toteutumisessa tai arjessa sekä päivättyjen vertailukelpoisten havaintojen erot. Älä esitä yksittäistä taustatietoa muutoksena. Käytä muutoksen osoittamiseen vain valittua koontipäivää edeltävän kuuden kalenterikuukauden aikana kirjattua lähdettä. Vanhempi lähde voi toimia vertailun lähtötietona, mutta ei yksin tue viimeaikaista muutosta. Älä päättele kirjauksen päivästä muutoksen alkamisajankohtaa.",
+        "empty": "Ei lähteistettyä muutostietoa kuuden viime kuukauden kirjauksista tässä koosteessa.",
+        "hint": "Muutokset, jotka on kirjattu valittua päivää edeltävän kuuden kuukauden aikana."
+      },
+      {
+        "key": "vastaanotolla_huomioitavaa",
+        "label": "Tapaamisessa huomioitavaa",
+        "focus": "Kirjattu seuranta ja sovitut jatkotoimet, asiakkaan kysymykset ja toiveet sekä hoidon toteutettavuuden tai arjen tuen kirjatut rajoitteet. Älä lisää lähteettömiä hoito-ohjeita tai seurantatehtäviä äläkä tee uutta hoito- tai riskiarviota.",
+        "empty": "Ei erillisiä lähteistettyjä huomioita tässä koosteessa."
+      },
+      {
+        "key": "varmistettavat_tiedot",
+        "label": "Varmistettavat hoitotiedot",
+        "focus": "Lähteissä osoitetut ristiriidat, epävarmuudet ja avoimet kysymykset voinnista, hoidon toteutumisesta, lääkkeiden ottamisesta tai kotona saatavasta tuesta. Älä keksi tarkistuslistaa.",
+        "empty": "Koosteeseen ei poimittu lähteistettyjä epäselvyyksiä. Tämä ei vahvista tietojen kattavuutta."
+      }
+    ]
+  },
+  "toimintaterapeutti": {
+    "title": "Toimintaterapeutin esitiedot ennen tapaamista",
+    "sections": [
+      {
+        "key": "nykytilanne",
+        "label": "Päivittäiset toiminnot, osallistuminen ja asiakkaan tavoitteet",
+        "focus": "Kirjatut asiakkaalle merkitykselliset päivittäiset toiminnot ja osallistuminen, niissä kirjatut vahvuudet ja vaikeudet, asiakkaan omat tavoitteet, käytössä olevat apuvälineet sekä ympäristön ja avun järjestelyt. Älä päättele arjen suoriutumista diagnoosista.",
+        "empty": "Ei lähteistettyä tilannekuvausta tässä koosteessa."
+      },
+      {
+        "key": "olennaiset_muutokset",
+        "label": "Viimeaikaiset muutokset",
+        "focus": "Vain lähteissä nimenomaisesti kirjatut muutokset päivittäisissä toiminnoissa, osallistumisessa, apuvälineissä tai avun järjestelyissä sekä päivättyjen vertailukelpoisten havaintojen erot. Älä päättele muutoksen syytä. Käytä muutoksen osoittamiseen vain valittua koontipäivää edeltävän kuuden kalenterikuukauden aikana kirjattua lähdettä. Vanhempi lähde voi toimia vertailun lähtötietona, mutta ei yksin tue viimeaikaista muutosta. Älä päättele kirjauksen päivästä muutoksen alkamisajankohtaa.",
+        "empty": "Ei lähteistettyä muutostietoa kuuden viime kuukauden kirjauksista tässä koosteessa.",
+        "hint": "Muutokset, jotka on kirjattu valittua päivää edeltävän kuuden kuukauden aikana."
+      },
+      {
+        "key": "vastaanotolla_huomioitavaa",
+        "label": "Arjen toiminnoissa huomioitavaa",
+        "focus": "Sovitut kuntoutuksen jatkotoimet sekä tehtävän kannalta olennaiset kirjatut arjen rajoitteet, apuvälinejärjestelyt ja ympäristön tai avun järjestelyt. Älä keksi avuntarvetta, arviointituloksia, tavoitteita tai harjoitusohjeita.",
+        "empty": "Ei erillisiä lähteistettyjä huomioita tässä koosteessa."
+      },
+      {
+        "key": "varmistettavat_tiedot",
+        "label": "Varmistettavat toimintakyky- ja apuvälinetiedot",
+        "focus": "Lähteissä avoimeksi jääneet tai ristiriitaiset toimintakykyä, päivittäisiä toimintoja ja apuvälineitä koskevat tiedot. Ei lähteetöntä arviointilistaa.",
+        "empty": "Koosteeseen ei poimittu lähteistettyjä epäselvyyksiä. Tämä ei vahvista tietojen kattavuutta."
+      }
+    ]
+  }
+}

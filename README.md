@@ -20,8 +20,11 @@ Aineistossa ei ole RAI-mittareita. **Lähtötilanteena** käytetään palvelutar
 | Tunnus | Rooli | Arviointitilanteet | Hoitosuhde |
 |---|---|---|---|
 | `sanna` | Sairaanhoitaja, kotihoito | RAI-seuranta-arvio, Lääkehoidon arviointi | 11 kotihoidon asiakasta |
-| `lauri` | Lääkäri | Lääkärin vastaanotto, Lääkehoidon arviointi | kaikki 14 |
-| `outi` | Asiakasohjaaja, sosiaalihuolto | Palvelutarpeen arviointi | kaikki 14 (ei diagnooseja, lääkitystä tai laboratoriota) |
+| `lauri` | Lääkäri | Lääkärin vastaanotto, Lääkehoidon arviointi, RAI-seuranta-arvio | kaikki 14 |
+| `fiia` | Fysioterapeutti | RAI-seuranta-arvio (painotus: arki, liikkuminen, kipu) | kaikki 14 (ei lääkitystä, laboratoriota tai päätöstekstejä) |
+| `sofia` | Sosiaalityöntekijä | RAI-seuranta-arvio, Palvelutarpeen arviointi | kaikki 14 (ei diagnooseja, lääkitystä tai laboratoriota) |
+
+RAI-seuranta-arviossa roolin painotus (`raiPainotus`, `js/agent.js`) määrää keskeiset osa-alueet; muut RAI-osa-alueet näytetään erikseen avattavina. Painotus perustuu tiedostoihin `new_data/roolit/roles/*.txt` eikä laajenna käyttöoikeuksia.
 
 Salasana kaikille: `Muutosvahti2026` (tallennetaan suolattuna SHA-256-tiivisteenä).
 

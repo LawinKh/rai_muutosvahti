@@ -52,6 +52,9 @@
   /* ---------- roolit, oikeudet ja arviointitilanteet ----------
    * Oikeudet kuvaavat, mitä tietoja rooli saa käsitellä (RBAC).
    * Tilanne voi rajata tietoja edelleen (käyttötarkoitus).
+   * raiPainotus: RAI-seuranta-arviossa roolin keskeiset osa-alueet (new_data/roolit/roles).
+   * Muut osa-alueet näytetään erikseen. Painotus ei laajenna oikeuksia.
+   * Ilman raiPainotusta kaikki osa-alueet ovat keskeisiä (RAI-arvioija).
    */
   const ROOLIT = {
     hoitaja: {
@@ -64,13 +67,22 @@
       nimi: "Lääkäri",
       kuvaus: "Kotihoidon ja palveluasumisen lääkäri",
       oikeudet: { kaynnit: "koko", dx: true, laakkeet: true, lab: true, muistiinpano: "koko", sosTapahtumat: true, sosTekstit: false, kotihoito: true, lomakkeet: true },
-      tilanteet: ["vastaanotto", "laake"]
+      tilanteet: ["vastaanotto", "laake", "rai"],
+      raiPainotus: ["liikkuminen", "kognitio", "mieliala", "kipu", "terveys", "palvelut"]
     },
-    ohjaaja: {
-      nimi: "Asiakasohjaaja, sosiaalihuolto",
-      kuvaus: "Ikääntyneiden palvelujen palvelutarpeen arviointi",
+    fysioterapeutti: {
+      nimi: "Fysioterapeutti",
+      kuvaus: "Liikkuminen, arjen toimintakyky, apuvälineet ja harjoittelu",
+      oikeudet: { kaynnit: "koko", dx: true, laakkeet: false, lab: false, muistiinpano: "koko", sosTapahtumat: true, sosTekstit: false, kotihoito: true, lomakkeet: false },
+      tilanteet: ["rai"],
+      raiPainotus: ["arki", "liikkuminen", "kipu"]
+    },
+    sosiaalityontekija: {
+      nimi: "Sosiaalityöntekijä",
+      kuvaus: "Arjessa selviytyminen, tukiverkosto ja palvelut",
       oikeudet: { kaynnit: "maarat", dx: false, laakkeet: false, lab: false, muistiinpano: "toimintakyky", sosTapahtumat: true, sosTekstit: true, kotihoito: true, lomakkeet: false },
-      tilanteet: ["pta"]
+      tilanteet: ["rai", "pta"],
+      raiPainotus: ["arki", "liikkuminen", "kognitio", "kommunikointi", "sosiaalinen", "palvelut"]
     }
   };
 
@@ -908,9 +920,10 @@
 
     const kooste = alueKooste(ctx, laake);
     const tilanne = TILANTEET[tilanneId];
+    const keskeiset = (tilanneId === "rai" && ROOLIT[rooliId].raiPainotus) || tilanne.alueet;
     const alueet = ALUEET.map((x) => ({
       ...x,
-      olennainen: tilanne.alueet.includes(x.id),
+      olennainen: keskeiset.includes(x.id),
       lahto: kooste[x.id].lahto,
       jalkeen: kooste[x.id].jalkeen,
       signaalit: signaalit.filter((s) => s.alue === x.id)

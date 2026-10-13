@@ -23,7 +23,7 @@
     (function () {
       "use strict";
       const A = window.RAIAgent, D = window.RAI_DATA;
-      const NAKYMAT = [["hoitaja", "rai"], ["laakari", "vastaanotto"], ["ohjaaja", "pta"]];
+      const NAKYMAT = [["hoitaja", "rai"], ["laakari", "vastaanotto"], ["sosiaalityontekija", "pta"]];
       const TILA = { punainen: "Merkittävä kielteinen muutos", keltainen: "Seurattava muutos", vihrea: "Merkittävä myönteinen muutos", neutraali: "Ei muutoksia lähtötilanteeseen" };
       const SUKUP = { MIES: "mies", NAINEN: "nainen" };
 
@@ -69,7 +69,7 @@
           palvelu: a.lahto.palvelu,
           lahtotilanne: { pvm: a.lahto.pvm, kuvaus: "Palvelutarpeen arviointi ja palvelupäätös", tuenTarve: a.lahto.tuenTarve, muisti: a.lahto.muisti ? a.lahto.muisti.split(";")[0] : null },
           raiSeuranta: { erapaiva: an.seuranta.erapaiva, jaljellaVrk: an.seuranta.jaljella, tila: an.seuranta.jaljella < 0 ? `myöhässä ${-an.seuranta.jaljella} vrk` : `${an.seuranta.jaljella} vrk jäljellä` },
-          hoitosuhde: { sairaanhoitaja: a.lahto.palvelu === "Säännöllinen kotihoito", laakari: true, asiakasohjaaja: true },
+          hoitosuhde: { sairaanhoitaja: a.lahto.palvelu === "Säännöllinen kotihoito", laakari: true, sosiaalityontekija: true },
           nakymat: Object.fromEntries(NAKYMAT.map(([r, t]) => [r, nakyma(a, r, t)]))
         };
       });

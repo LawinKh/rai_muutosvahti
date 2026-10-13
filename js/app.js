@@ -50,7 +50,8 @@
   const DEMO_KAYTTAJAT = [
     { tunnus: "sanna", nimi: "Sanna Sairaanhoitaja", rooli: "hoitaja", yksikko: "Kotihoito, Länsi-Uusimaa (demo)", hoitosuhde: "kotihoito" },
     { tunnus: "lauri", nimi: "Lauri Lääkäri", rooli: "laakari", yksikko: "Kotihoidon ja palveluasumisen lääkäripalvelut (demo)", hoitosuhde: "kaikki" },
-    { tunnus: "outi", nimi: "Outi Ohjaaja", rooli: "ohjaaja", yksikko: "Ikääntyneiden asiakasohjaus (demo)", hoitosuhde: "kaikki" }
+    { tunnus: "fiia", nimi: "Fiia Fysioterapeutti", rooli: "fysioterapeutti", yksikko: "Kotikuntoutus (demo)", hoitosuhde: "kaikki" },
+    { tunnus: "sofia", nimi: "Sofia Sosiaalityöntekijä", rooli: "sosiaalityontekija", yksikko: "Ikääntyneiden sosiaalityö (demo)", hoitosuhde: "kaikki" }
   ];
   const HOITOSUHDE = {
     kotihoito: { kuvaus: "Säännöllisen kotihoidon asiakkaat", ehto: (a) => a.lahto.palvelu === "Säännöllinen kotihoito" },
@@ -362,7 +363,7 @@
       </header>
       <main id="app" tabindex="-1"></main>
       <footer class="footer">RAI Muutosvahti · Esitietojen koonti ikääntyneiden palveluihin · Sääntöversio ${esc(A.SAANTOVERSIO)} · Synteettinen aineisto (LUVN / Veil.AI) · AI ei päätä – ammattilainen arvioi ja päättää.</footer>
-      <button class="fab" id="fab" type="button" aria-expanded="false" aria-controls="chat">${SVG.chat}<span>Kysy avustajalta</span></button>
+      <button class="fab" id="fab" type="button" aria-expanded="false" aria-controls="chat">${SVG.chat}<span>Kysy ${esc(COPILOT_NIMI)}</span></button>
       <section class="chat" id="chat" role="dialog" aria-modal="false" aria-labelledby="chatTitle" aria-describedby="chatDesc" hidden>
         <div class="chat__head">
           <div><strong id="chatTitle">Muutosvahdin avustaja</strong><span class="sr" id="chatDesc">Tekoälyavustaja. Sulje Esc-näppäimellä.</span><span>Tekoälyavustaja · ei tee päätöksiä</span></div>
@@ -787,7 +788,7 @@
 
           <div class="section-title"><h2>Esitietokooste RAI-osa-alueittain</h2><span class="muted small">Kiinteä RAI-järjestys – ei tekoälyn tärkeysjärjestystä</span></div>
           ${olennaiset.map((al) => alueKortti(a, an, al, avaaSaanto)).join("")}
-          ${muut.length ? `<details class="card more-domains"><summary><strong>Muut osa-alueet (${muut.length})</strong> <span class="small muted">– eivät ole tämän arviointitilanteen kannalta keskeisiä</span></summary>${muut.map((al) => alueKortti(a, an, al, avaaSaanto)).join("")}</details>` : ""}
+          ${muut.length ? `<details class="card more-domains"><summary><strong>Muut osa-alueet (${muut.length})</strong> <span class="small muted">– ${S.tilanne === "rai" ? "roolisi painotuksen ulkopuolella; RAI-arvio kattaa kaikki osa-alueet" : "eivät ole tämän arviointitilanteen kannalta keskeisiä"}</span></summary>${muut.map((al) => alueKortti(a, an, al, avaaSaanto)).join("")}</details>` : ""}
 
           <section class="card" id="kaaviot">
             <div class="card__head"><h2>Kehitys kaavioina</h2><span class="small muted">Vain tämän roolin ja tilanteen sallimat tiedot</span></div>
@@ -907,7 +908,7 @@
     const merkki = t ? status(t, false) : tyhja ? '<span class="chip">Ei tietoa aineistossa</span>' : '<span class="status status--neutraali">' + IKONI.neutraali + "Ei muutoksia</span>";
     return `<section class="card domain${t ? " domain--" + t : ""}" id="alue-${esc(al.id)}">
       <div class="domain__head"><h3>${esc(al.nimi)}</h3>${merkki}</div>
-      ${tyhja ? `<p class="small muted">Käytettävissä olevissa tiedoissa ei ole tätä osa-aluetta kuvaavaa tietoa${al.id === "ravitsemus" ? " (esim. paino tai ruokahalu)" : ""}. Tarkista tarvittaessa asiakkaan kanssa.</p>` : `
+      ${tyhja ? `<p class="small muted">Käytettävissä olevissa tiedoissa ei ole tätä osa-aluetta kuvaavaa tietoa${al.id === "ravitsemus" ? " (esim. paino tai ruokahalu)" : ""}.${an.oikeudet.dx && an.oikeudet.laakkeet && an.oikeudet.lab ? "" : " Osa terveystiedoista ei kuulu roolisi käyttötarkoitukseen, joten puuttuva tieto ei tarkoita, ettei asiaa olisi kirjattu."} Tarkista tarvittaessa asiakkaan kanssa.</p>` : `
       <div class="domain__cols">
         <div><p class="label">Lähtötilanne (${fmtPvm(an.lahtoPvm)} ja sitä edeltävä vuosi)</p>${al.lahto.length ? `<ul class="facts">${al.lahto.map(fakta).join("")}</ul>` : '<p class="small muted">Ei kirjauksia.</p>'}</div>
         <div><p class="label">Lähtötilanteen jälkeen</p>${al.jalkeen.length || lomakkeet.length ? `<ul class="facts">${al.jalkeen.map(fakta).join("")}${lomakkeet.map((l) => `<li class="facts__own">Ammattilaisen kirjaama ${esc(l.id)}: <strong>${l.pisteet} / ${l.max}</strong> (${fmtPvm(l.aika.slice(0, 10))}, ${esc(l.kuka)})</li>`).join("")}</ul>` : '<p class="small muted">Ei uusia kirjauksia.</p>'}</div>

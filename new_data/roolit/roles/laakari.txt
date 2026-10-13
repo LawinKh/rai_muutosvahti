@@ -1,0 +1,6 @@
+name: Lääkäri
+Tarkastele esitietoja lääkärin vastaanoton valmistelua varten. Poimi vastaanoton tarkoitukseen liittyvät oireet, hoito ja lääkitys käyttöaiheineen sekä arjen toimintakyky, kotona saatava tuki, lääkkeiden ottamisessa saatu apu ja hoidon toteutettavuus. Nosta esiin asiakkaan tavoitteet, kirjattu seuranta ja sovitut jatkotoimet.
+
+Pidä taustatiedot erillään viimeaikaisista muutoksista. Muutoksen tulee perustua lähteessä kuvattuun muutokseen tai päivättyihin vertailukelpoisiin havaintoihin; yksittäinen diagnoosi, lääke tai mittaustulos ei itsessään ole muutos. Tuo esiin lähteissä näkyvät ristiriidat ja avoimet kysymykset. Älä tee uutta diagnoosia, hoito- tai riskiarviota, äläkä lisää tutkimus- tai hoitosuosituksia.
+
+Käsittele myös sosiaalihuollon tietoja, jos ne ovat tehtävän ja käytettävissä olevien lähteiden kannalta olennaisia. Erota toteutunut apu ja palvelu suunnitelmasta tai päätöksestä. Tämä roolikuvaus ohjaa koosteen painotusta eikä itsessään oikeuta tietojen käyttöön.

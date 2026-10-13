@@ -20,7 +20,7 @@ $d = [IO.File]::ReadAllText($lahde, [Text.Encoding]::UTF8) | ConvertFrom-Json
 function E($s) { [System.Net.WebUtility]::HtmlEncode([string]$s) }
 function Pvm($s) { if (-not $s) { return '–' }; $o = ([string]$s).Substring(0, 10).Split('-'); '{0}.{1}.{2}' -f [int]$o[2], [int]$o[1], $o[0] }
 $SYMBOLI = @{ 'Merkittävä kielteinen muutos' = '▲'; 'Seurattava muutos' = '◆'; 'Merkittävä myönteinen muutos' = '↑'; 'Ei muutoksia lähtötilanteeseen' = '='; 'Tiedoksi' = 'ⓘ' }
-$ROOLI = [ordered]@{ hoitaja = 'Sairaanhoitajan'; laakari = 'Lääkärin'; ohjaaja = 'Asiakasohjaajan' }
+$ROOLI = [ordered]@{ hoitaja = 'Sairaanhoitajan'; laakari = 'Lääkärin'; sosiaalityontekija = 'Sosiaalityöntekijän' }
 function Maarat($n) {
   $h = @($n.havainnot)
   [pscustomobject]@{
@@ -46,8 +46,8 @@ W "<p><b>Käyttötarkoitus:</b> $(E $d.kayttotarkoitus)</p>"
 W "<p><b>Viitepäivä (tänään):</b> $(Pvm $d.viitepaiva). <b>Aineistoversio:</b> $(E $d.versio.aineisto). <b>Sääntöversio:</b> $(E $d.versio.saannot). <b>Muodostettu:</b> $(Pvm $d.versio.muodostettu).</p>"
 W '<h2>Näin tietopohjaa käytetään</h2>'
 Lista @(
-  'Jokaisesta asiakkaasta on kolme roolikohtaista näkymää: Sairaanhoitajan näkymä (RAI-seuranta-arvio), Lääkärin näkymä (Lääkärin vastaanotto) ja Asiakasohjaajan näkymä (Palvelutarpeen arviointi).',
-  'Vastaa käyttäjälle vain hänen roolinsa näkymästä. Asiakasohjaajan näkymässä ei ole diagnooseja, lääkitystä eikä laboratoriotuloksia.',
+  'Jokaisesta asiakkaasta on kolme roolikohtaista näkymää: Sairaanhoitajan näkymä (RAI-seuranta-arvio), Lääkärin näkymä (Lääkärin vastaanotto) ja Sosiaalityöntekijän näkymä (Palvelutarpeen arviointi).',
+  'Vastaa käyttäjälle vain hänen roolinsa näkymästä. Sosiaalityöntekijän näkymässä ei ole diagnooseja, lääkitystä eikä laboratoriotuloksia.',
   'Sairaanhoitajalla on hoitosuhde vain säännöllisen kotihoidon asiakkaisiin. Palveluasumisen asiakkaista sairaanhoitajan näkymää ei ole.',
   'Lähtötilanne tarkoittaa palvelutarpeen arviointia ja palvelupäätöstä. Aineistossa ei ole RAI-mittareita.',
   'Havainnot ovat tarkistettavia asioita, eivät diagnooseja tai päätöksiä. Ammattilainen arvioi ja päättää.'
@@ -83,10 +83,10 @@ foreach ($l in $d.lomakkeet) {
 
 # --- asiakasyhteenveto ja tarkistamisjärjestys
 W '<h1>Asiakasyhteenveto</h1>'
-W '<table><tr><th>Asiakas</th><th>Ikä, palvelu, kunta</th><th>Lähtötilanne</th><th>RAI-seuranta-arvio</th><th>Sairaanhoitajan näkymä</th><th>Lääkärin näkymä</th><th>Asiakasohjaajan näkymä</th></tr>'
+W '<table><tr><th>Asiakas</th><th>Ikä, palvelu, kunta</th><th>Lähtötilanne</th><th>RAI-seuranta-arvio</th><th>Sairaanhoitajan näkymä</th><th>Lääkärin näkymä</th><th>Sosiaalityöntekijän näkymä</th></tr>'
 foreach ($a in $d.asiakkaat) {
   $solu = { param($k) if ($k -eq 'hoitaja' -and -not $a.hoitosuhde.sairaanhoitaja) { 'Ei hoitosuhdetta' } else { $n = $a.nakymat.$k; $q = Maarat $n; "$($n.tila) ($(MaaraTeksti $q))" } }
-  W "<tr><td><b>$(E $a.asiakas)</b></td><td>$($a.ika) v, $(E $a.sukupuoli), $(E $a.palvelu), $(E $a.kotikunta)</td><td>$(Pvm $a.lahtotilanne.pvm)</td><td>$(E $a.raiSeuranta.tila) (määräpäivä $(Pvm $a.raiSeuranta.erapaiva))</td><td>$(E (& $solu 'hoitaja'))</td><td>$(E (& $solu 'laakari'))</td><td>$(E (& $solu 'ohjaaja'))</td></tr>"
+  W "<tr><td><b>$(E $a.asiakas)</b></td><td>$($a.ika) v, $(E $a.sukupuoli), $(E $a.palvelu), $(E $a.kotikunta)</td><td>$(Pvm $a.lahtotilanne.pvm)</td><td>$(E $a.raiSeuranta.tila) (määräpäivä $(Pvm $a.raiSeuranta.erapaiva))</td><td>$(E (& $solu 'hoitaja'))</td><td>$(E (& $solu 'laakari'))</td><td>$(E (& $solu 'sosiaalityontekija'))</td></tr>"
 }
 W '</table>'
 W '<h2>Tarkistamisjärjestys roolettain</h2><p>Järjestys: eniten merkittäviä kielteisiä muutoksia ensin, sitten seurattavia, sitten myönteisiä. Järjestys ei ole riskiluokitus.</p>'
@@ -109,7 +109,7 @@ foreach ($a in $d.asiakkaat) {
   W "<p><b>$(E $nm)</b>: $($a.ika)-vuotias $(E $a.sukupuoli), $(E $a.kotikunta), asiointikieli $(E $a.asiointikieli). Palvelu: $(E $a.palvelu). Tunniste $(E $a.tunniste) (synteettinen).</p>"
   W "<p><b>$(E $nm) – lähtötilanne:</b> $(E $a.lahtotilanne.kuvaus) $(Pvm $a.lahtotilanne.pvm). Tuen tarve: $(E (@($a.lahtotilanne.tuenTarve) -join '; ')).$(if ($a.lahtotilanne.muisti) { ' Muistiin liittyvä tuen tarve: ' + (E $a.lahtotilanne.muisti) + '.' })</p>"
   W "<p><b>$(E $nm) – RAI-seuranta-arvio:</b> $(E $a.raiSeuranta.tila), määräpäivä $(Pvm $a.raiSeuranta.erapaiva).</p>"
-  W "<p><b>$(E $nm) – hoitosuhde:</b> sairaanhoitaja $(if ($a.hoitosuhde.sairaanhoitaja) { 'kyllä' } else { 'ei (palveluasumisen asiakas)' }), lääkäri kyllä, asiakasohjaaja kyllä.</p>"
+  W "<p><b>$(E $nm) – hoitosuhde:</b> sairaanhoitaja $(if ($a.hoitosuhde.sairaanhoitaja) { 'kyllä' } else { 'ei (palveluasumisen asiakas)' }), lääkäri kyllä, sosiaalityöntekijä kyllä.</p>"
   foreach ($k in $ROOLI.Keys) {
     $n = $a.nakymat.$k
     $otsikko = "$nm – $($ROOLI[$k]) näkymä ($($n.arviointitilanne))"
@@ -118,7 +118,7 @@ foreach ($a in $d.asiakkaat) {
     $q = Maarat $n
     W "<p><b>$(E $nm), $($ROOLI[$k].ToLower()) näkymä – tila:</b> $(E $SYMBOLI[$n.tila]) $(E $n.tila) ($(E (MaaraTeksti $q))).</p>"
     W "<p><b>Tilannekuva:</b> $(E $n.tilannekuva)</p>"
-    if ($k -eq 'ohjaaja') { W "<p class=`"pieni`">Asiakasohjaajan näkymässä ei ole diagnooseja, lääkitystä eikä laboratoriotuloksia (käyttötarkoitussidonnaisuus).</p>" }
+    if ($k -eq 'sosiaalityontekija') { W "<p class=`"pieni`">Sosiaalityöntekijän näkymässä ei ole diagnooseja, lääkitystä eikä laboratoriotuloksia (käyttötarkoitussidonnaisuus).</p>" }
     if (@($n.havainnot).Count) {
       W "<p><b>Havainnot ($(E $nm), $($ROOLI[$k].ToLower()) näkymä):</b></p>"
       foreach ($h in $n.havainnot) {

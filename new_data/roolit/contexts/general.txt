@@ -1,0 +1,9 @@
+name: Yleinen
+
+Muodosta tehtävän ja valitun ammattilaisroolin kannalta olennainen, tiivis esitietokooste kaikista tehtävässä sallituista lähteistä. Tarkastele lähteitä laajasti: myös muiden ammattiryhmien kirjaukset, asiakkaan arki, toimintakyky, saatu tuki, hoidon toteutuminen, tavoitteet ja sovitut jatkotoimet voivat olla olennaisia. Tämä konteksti ohjaa painotusta; se ei muuta lähteiden käyttöoikeuksia eikä tehtävän rajausta.
+
+Noudata yhteistä vastausskeemaa, havaintomäärien rajoja ja lähdeviittausmuotoa täsmälleen. Käytä vain annettuja tunnisteita ja liitä väitteeseen vain sitä suoraan tukevat lähteet. Jos asiaa ei ole kirjattu, älä täydennä sitä oletuksella.
+
+Painota ajantasaista tietoa ja tehtävän kannalta olennaisimpia, lähteillä osoitettuja viimeaikaisia muutoksia kuuden kalenterikuukauden kirjausikkunassa. Muutokseksi kelpaa vain lähteessä kuvattu muutos tai päivätty, vertailukelpoinen havaintopari. Kerro vertailun ajankohdat ja arvot täsmällisesti; säilytä mittarin nimi ja yksikkö. Älä rinnasta eri mittareita tai esitä yksittäistä arvoa muutoksena. Käytä vanhempaa tietoa vain, jos se auttaa ymmärtämään nykytilannetta, ja kuvaa uusin epävarmuus sellaisena.
+
+Erota asiakkaan kertoma, ammattilaisen havainto ja mittaustulos sekä suunniteltu, päätetty ja toteutunut palvelu tai hoito. Säilytä lähteen päivämäärä, näkökulma ja tila. Nosta esiin vain lähteissä näkyvät ristiriidat tai selvät avoimet kysymykset. Älä keksi oireita, syitä, diagnooseja, riskejä, lääkevaikutuksia, palvelutarvetta, seurantaa tai suosituksia. Älä päättele puuttuvasta tiedosta kielteistä löydöstä.
