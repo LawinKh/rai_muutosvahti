@@ -154,7 +154,7 @@
   };
   const LYHYT = { punainen: "Kielteinen muutos", keltainen: "Seurattava muutos", vihrea: "Myönteinen muutos", neutraali: "Ei muutoksia", info: "Tiedoksi" };
   const PITKA = { punainen: "Merkittävä kielteinen muutos", keltainen: "Seurattava muutos", vihrea: "Merkittävä myönteinen muutos", neutraali: "Ei muutoksia lähtötilanteeseen", info: "Tiedoksi" };
-  const status = (t, pitka = false, luokka = "") => `<span class="status status--${t} ${luokka}">${IKONI[t]}${esc(pitka ? PITKA[t] : LYHYT[t])}</span>`;
+  const status = (t, pitka = false, luokka = "", piilota = false) => `<span class="status status--${t} ${luokka}"${piilota ? ' aria-hidden="true"' : ""}>${IKONI[t]}${esc(pitka ? PITKA[t] : LYHYT[t])}</span>`;
   const VARMUUS = {
     "selvä": "Havainto perustuu rakenteiseen tietoon (esim. diagnoosikoodi, lääketietue).",
     "kohtalainen": "Havainto perustuu tietoon, jonka tulkinta vaatii tarkistusta.",
@@ -214,17 +214,31 @@
   /* =====================================================================
    * TEEMA
    * ===================================================================== */
-  function asetaTeema(t) {
-    if (t) document.documentElement.setAttribute("data-theme", t); else document.documentElement.removeAttribute("data-theme");
-  }
-  asetaTeema(Varasto.lue("teema", null));
+  // Kaksi tilaa: vaalea ja tumma. Ensimmäisellä kerralla lähtötila otetaan käyttöjärjestelmän asetuksesta.
+  const TEEMAT = {
+    light: { nimi: "Vaalea", seuraava: "dark", ikoni: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>' },
+    dark: { nimi: "Tumma", seuraava: "light", ikoni: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg>' }
+  };
+  const teemaTila = () => {
+    const t = Varasto.lue("teema", null);
+    if (t === "light" || t === "dark") return t;
+    return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  };
+  function asetaTeema(t) { document.documentElement.setAttribute("data-theme", t); }
+  asetaTeema(teemaTila());
+  const teemaNappi = (lisa = "") => {
+    const t = TEEMAT[teemaTila()];
+    return `<button class="themebtn${lisa}" type="button" data-teema aria-label="Teema: ${t.nimi}. Vaihda teemaksi ${TEEMAT[t.seuraava].nimi.toLowerCase()}." title="Teema: ${t.nimi} – vaihda">${t.ikoni}<span>${t.nimi}</span></button>`;
+  };
   function vaihdaTeema() {
-    const tumma = document.documentElement.getAttribute("data-theme") === "dark" ||
-      (!document.documentElement.getAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
-    const uusi = tumma ? "light" : "dark";
-    asetaTeema(uusi);
+    const uusi = TEEMAT[teemaTila()].seuraava;
     Varasto.kirjoita("teema", uusi);
+    asetaTeema(uusi);
+    $$("[data-teema]").forEach((b) => { b.outerHTML = teemaNappi(b.classList.contains("themebtn--login") ? " themebtn--login" : ""); });
+    sidoTeemaNapit();
+    $("[data-teema]")?.focus();
   }
+  function sidoTeemaNapit() { $$("[data-teema]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); vaihdaTeema(); })); }
 
   /* =====================================================================
    * KIRJAUTUMINEN
@@ -235,6 +249,7 @@
     document.title = "Kirjaudu – RAI Muutosvahti";
     const kayttajat = Varasto.lue("kayttajat", []);
     root.innerHTML = `
+      ${teemaNappi(" themebtn--login")}
       <div class="login">
         <section class="login__hero">
           <div class="login__brand">${SVG.logo}<span>RAI Muutosvahti</span></div>
@@ -279,6 +294,7 @@
         </section>
       </div>`;
 
+    sidoTeemaNapit();
     $$("[data-demo]").forEach((b) => b.addEventListener("click", () => {
       $("#lTunnus").value = b.dataset.demo;
       $("#lSalasana").value = DEMO_SALASANA;
@@ -332,6 +348,7 @@
             <a href="#/loki" data-nav="loki">Loki</a>
           </nav>
           <div class="topbar__right">
+            ${teemaNappi()}
             <button class="iconbtn" id="bell" type="button" aria-haspopup="true" aria-expanded="false">${SVG.kello}<span class="badge" id="bellCount" hidden></span></button>
             <button class="userbtn" id="userBtn" type="button" aria-haspopup="true" aria-expanded="false">
               <span class="avatar">${esc(nimikirjaimet(u.nimi))}</span>
@@ -345,14 +362,14 @@
       <main id="app" tabindex="-1"></main>
       <footer class="footer">RAI Muutosvahti · Esitietojen koonti ikääntyneiden palveluihin · Sääntöversio ${esc(A.SAANTOVERSIO)} · Synteettinen aineisto (LUVN / Veil.AI) · AI ei päätä – ammattilainen arvioi ja päättää.</footer>
       <button class="fab" id="fab" type="button" aria-expanded="false" aria-controls="chat">${SVG.chat}<span>Kysy avustajalta</span></button>
-      <section class="chat" id="chat" aria-label="Muutosvahdin tekoälyavustaja" hidden>
+      <section class="chat" id="chat" role="dialog" aria-modal="false" aria-labelledby="chatTitle" aria-describedby="chatDesc" hidden>
         <div class="chat__head">
-          <div><strong>Muutosvahdin avustaja</strong><span>Tekoälyavustaja · ei tee päätöksiä</span></div>
+          <div><strong id="chatTitle">Muutosvahdin avustaja</strong><span class="sr" id="chatDesc">Tekoälyavustaja. Sulje Esc-näppäimellä.</span><span>Tekoälyavustaja · ei tee päätöksiä</span></div>
           <button type="button" id="chatClose" aria-label="Sulje">×</button>
         </div>
-        <div class="chat__tabs seg" role="tablist">
-          <button type="button" role="tab" data-chattab="paikallinen" aria-pressed="true">Paikallinen avustaja</button>
-          <button type="button" role="tab" data-chattab="copilot" aria-pressed="false">Copilot Studio</button>
+        <div class="chat__tabs seg" role="group" aria-label="Avustajan valinta">
+          <button type="button" data-chattab="paikallinen" aria-pressed="true">Paikallinen avustaja</button>
+          <button type="button" data-chattab="copilot" aria-pressed="false">Copilot Studio</button>
         </div>
         <div class="chat__body" id="chatLocal">
           <div class="chat__log" id="chatLog" aria-live="polite"></div>
@@ -368,6 +385,7 @@
         <div class="modal__box"><div class="modal__head"><h2 id="modalTitle"></h2><button type="button" class="modal__close" id="modalClose" aria-label="Sulje">×</button></div><div class="modal__body" id="modalBody"></div></div>
       </div>`;
 
+    sidoTeemaNapit();
     $("#bell").addEventListener("click", (e) => { e.stopPropagation(); const auki = $("#ilmoitukset").hidden; suljePopoverit(); $("#ilmoitukset").hidden = !auki; $("#bell").setAttribute("aria-expanded", String(auki)); });
     $("#userBtn").addEventListener("click", (e) => { e.stopPropagation(); const auki = $("#menu").hidden; suljePopoverit(); if (auki) piirraValikko(); $("#menu").hidden = !auki; $("#userBtn").setAttribute("aria-expanded", String(auki)); });
     $("#fab").addEventListener("click", () => avaaChat(!$("#chat").hidden ? false : true));
@@ -411,7 +429,6 @@
     const kt = Math.max(1, Math.round(Varasto.koko() / 1024));
     $("#menu").innerHTML = `
       <div class="menu__head"><span class="avatar">${esc(nimikirjaimet(u.nimi))}</span><div><strong>${esc(u.nimi)}</strong><span class="small muted">${esc(rooli().nimi)} · ${esc(u.yksikko)}</span></div></div>
-      <button type="button" data-m="teema" role="menuitem">${SVG.teema}Vaihda vaalea / tumma teema</button>
       <button type="button" data-m="vie" role="menuitem">${SVG.lataa}Lataa omat arviot ja loki (JSON)</button>
       <button type="button" data-m="tyhjenna" role="menuitem">${SVG.roska}Tyhjennä paikallinen muisti</button>
       <hr>
@@ -422,7 +439,6 @@
   function valikko(m) {
     suljePopoverit();
     if (m === "ulos") return kirjauduUlos();
-    if (m === "teema") return vaihdaTeema();
     if (m === "vie") {
       const blob = new Blob([JSON.stringify({ viety: new Date().toISOString(), kayttaja: S.kayttaja.tunnus, arviot: S.arviot, paatokset: S.paatokset, lomakkeet: S.lomakkeet, loki: S.loki }, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -530,10 +546,23 @@
     const taso = signaaliTasot(an);
     const tap = aikajanaTietueet(an).filter((l) => l.pvm > alku && l.pvm <= tanaan && l.tyyppi !== "kotihoito")
       .sort((x, y) => ({ punainen: 3, keltainen: 2, vihrea: 1 }[taso.get(x.id)] || 0) - ({ punainen: 3, keltainen: 2, vihrea: 1 }[taso.get(y.id)] || 0));
-    const pisteet = tap.map((l) => `<span class="raibar__ev${taso.has(l.id) ? " raibar__ev--" + taso.get(l.id) : ""}" style="left:${kohta(l.pvm).toFixed(2)}%" data-tt="${esc(fmtPvm(l.pvm) + " · " + l.otsikko)}"${iso ? ` data-lahde="${esc(l.id)}" role="button" tabindex="0" aria-label="${esc(fmtPvm(l.pvm) + ": " + l.otsikko)}"` : ""}></span>`).join("");
+    // Päällekkäisyyden esto: merkki siirtyy janan alle omalle kaistalle, jos se osuisi
+    // jo sijoitettuun merkkiin. Vakavimmat sijoitetaan ensin, jolloin ne jäävät janalle.
+    const vali = iso ? 1.9 : 5, askel = iso ? 22 : 15;
+    const kaistat = [];
+    const sijoitus = new Map();
+    for (const l of [...tap].reverse()) {
+      const x = kohta(l.pvm);
+      let k = kaistat.findIndex((kk) => kk.every((q) => Math.abs(q - x) >= vali));
+      if (k < 0) { kaistat.push([]); k = kaistat.length - 1; }
+      kaistat[k].push(x);
+      sijoitus.set(l.id, k);
+    }
+    const lisakaistat = Math.max(0, kaistat.length - 1);
+    const pisteet = tap.map((l) => `<span class="raibar__ev${taso.has(l.id) ? " raibar__ev--" + taso.get(l.id) : ""}${sijoitus.get(l.id) ? " raibar__ev--kaista" : ""}" style="left:${kohta(l.pvm).toFixed(2)}%${sijoitus.get(l.id) ? `;top:calc(50% + ${sijoitus.get(l.id) * askel}px);--nousu:${sijoitus.get(l.id) * askel}px` : ""}" data-tt="${esc(fmtPvm(l.pvm) + " · " + l.otsikko + (taso.has(l.id) ? " · " + PITKA[taso.get(l.id)].toLowerCase() : ""))}"${iso ? ` data-lahde="${esc(l.id)}" role="button" tabindex="0" aria-label="${esc(fmtPvm(l.pvm) + ": " + l.otsikko + (taso.has(l.id) ? ", " + PITKA[taso.get(l.id)].toLowerCase() : "") + ". Avaa lähde.")}"` : ""}></span>`).join("");
     const t = kohta(tanaan), e = kohta(era);
     const yli = an.seuranta.jaljella < 0;
-    return `<div class="raibar${iso ? " raibar--lg" : ""}${yli ? " raibar--over" : ""}" role="img" aria-label="Lähtötilanne ${fmtPvm(alku)}, seuranta-arvio ${fmtPvm(era)}. Lähtötilanteen jälkeen ${tap.length} tietuetta.">
+    return `<div class="raibar${iso ? " raibar--lg" : ""}${yli ? " raibar--over" : ""}" role="${iso ? "group" : "img"}" aria-label="Lähtötilanne ${fmtPvm(alku)}, seuranta-arvio ${fmtPvm(era)}. Lähtötilanteen jälkeen ${tap.length} tietuetta.">
       <div class="raibar__track">
         <div class="raibar__fill" style="width:${t.toFixed(2)}%"></div>
         <span class="raibar__start"></span>
@@ -541,8 +570,8 @@
         ${pisteet}
         <span class="raibar__today" style="left:${t.toFixed(2)}%"></span>
       </div>
-      <div class="raibar__labels">
-        ${iso ? `<span class="raibar__todaylbl" style="left:${Math.min(94, Math.max(6, t)).toFixed(2)}%">Tänään ${fmtPvm(tanaan)}</span>` : ""}
+      <div class="raibar__labels"${lisakaistat ? ` style="margin-top:calc(.55rem + ${lisakaistat * askel}px)"` : ""}>
+        ${iso ? `<span class="raibar__todaylbl" style="left:${Math.min(94, Math.max(6, t)).toFixed(2)}%${lisakaistat ? `;top:calc(-3.1rem - ${lisakaistat * askel}px)` : ""}">Tänään ${fmtPvm(tanaan)}</span>` : ""}
         <span><strong>Lähtötilanne</strong> ${fmtPvm(alku)}</span>
         <span>${yli ? `<strong>Seuranta-arvio ajankohtainen</strong> (${fmtPvm(era)})` : `Seuranta-arvio ${fmtPvm(era)}`}</span>
       </div>
@@ -646,17 +675,17 @@
     const arv = sig.filter(arvioitu).length;
     const paa = sig[0];
     const chipit = sig.slice(iso ? 1 : 0, iso ? 4 : 3);
-    return `<a class="ccard ccard--${an.tila}${iso ? " ccard--featured" : ""}" href="#/asiakas/${esc(a.id)}">
+    return `<article class="ccard ccard--${an.tila}${iso ? " ccard--featured" : ""}">
       <div class="ccard__top">
         <span class="avatar avatar--${an.tila}">${esc(tunnus(a))}</span>
-        <div class="ccard__name"><strong>${esc(nimi(a))}</strong><span>${a.ika} v · ${esc(sukupuoli(a.sukupuoli))} · ${esc(a.kotikunta)} · ${esc(PALVELU_LYHYT[a.lahto.palvelu] || a.lahto.palvelu)}</span>${status(an.tila)}</div>
+        <div class="ccard__name"><strong><a class="ccard__link" href="#/asiakas/${esc(a.id)}">${esc(nimi(a))}<span class="sr">, ${esc(PITKA[an.tila].toLowerCase())}</span></a></strong><span>${a.ika} v · ${esc(sukupuoli(a.sukupuoli))} · ${esc(a.kotikunta)} · ${esc(PALVELU_LYHYT[a.lahto.palvelu] || a.lahto.palvelu)}</span>${status(an.tila, false, "", true)}</div>
       </div>
       ${indHtml(indikaattorit(a, an))}
       ${iso && paa ? `<p class="ccard__lead"><strong>${esc(paa.otsikko)}.</strong> ${esc(paa.mitaMuuttui)}</p>` : ""}
       ${raiVali(a, an)}
       ${sig.length === 0 ? '<p class="ccard__lead small">Ei sääntöjen mukaan tarkistettavia muutoksia lähtötilanteeseen nähden.</p>' : chipit.length ? `<div class="ccard__chips">${chipit.map((s) => `<span class="chip"><span class="status status--${TASO_TILA[s.taso]}">${IKONI[TASO_TILA[s.taso]]}</span> ${esc(s.otsikko)}</span>`).join("")}</div>` : ""}
       <div class="ccard__foot"><span>${an.tilasto.tietueet} uutta tietuetta</span><span>${sig.length ? `${arv}/${sig.length} arvioitu` : "Ei arvioitavaa"}</span></div>
-    </a>`;
+    </article>`;
   }
 
   function piirraLista() {
@@ -901,8 +930,7 @@
         ${info ? "" : `<div class="ack">${k
           ? `<div class="ack__done">✔ <strong>${esc(ARVIO_NIMI[k.tulos])}</strong> – ${esc(k.kuka)} (${esc(k.rooli)}), ${new Date(k.aika).toLocaleString("fi-FI")}${k.kommentti ? `<br>”${esc(k.kommentti)}”` : ""}<br><button class="btn btn--small" type="button" data-peru="${esc(s.avain)}" data-saanto="${esc(s.saanto)}" style="margin-top:.45rem">Muuta arviota</button></div>`
           : `<form data-arvio="${esc(s.avain)}">
-              <p class="label" style="margin-top:0">Oma arviosi havainnosta</p>
-              <div class="radios">${Object.entries(ARVIO_NIMI).map(([v, n]) => `<label class="check"><input type="radio" name="tulos" value="${v}"> ${esc(n)}</label>`).join("")}</div>
+              <fieldset class="radios"><legend class="label">Oma arviosi havainnosta: ${esc(s.otsikko)}</legend>${Object.entries(ARVIO_NIMI).map(([v, n]) => `<label class="check"><input type="radio" name="tulos" value="${v}"> ${esc(n)}</label>`).join("")}</fieldset>
               <label class="field" style="margin:.5rem 0">Kommentti (valinnainen)<input name="kommentti" maxlength="300" autocomplete="off"></label>
               <button class="btn btn--primary btn--small" type="submit">Tallenna arvio</button>
             </form>`}</div>`}
@@ -977,7 +1005,7 @@
       <h2>Ammattilaisen arvio ja jatkotoimet</h2>
       <p class="small muted">Sinä päätät. Kirjaus on ihmisen valvonnan keino ja tallentuu lokiin.${arvioimatta ? ` ${arvioimatta} havaintoa on vielä arvioimatta.` : ""}</p>
       <form id="paatosForm">
-        <div class="checks">${JATKOTOIMET.map((t) => `<label class="check"><input type="checkbox" name="toimi" value="${esc(t)}"> ${esc(t)}</label>`).join("")}</div>
+        <fieldset class="checks"><legend class="label">Jatkotoimet (valitse yksi tai useampi)</legend>${JATKOTOIMET.map((t) => `<label class="check"><input type="checkbox" name="toimi" value="${esc(t)}"> ${esc(t)}</label>`).join("")}</fieldset>
         <label class="field" style="margin:.6rem 0">Perustelu / kommentti<textarea name="kommentti" maxlength="600" placeholder="Oma arviosi tilanteesta"></textarea></label>
         <button class="btn btn--primary btn--small" type="submit">Kirjaa jatkotoimet</button>
       </form>
@@ -1170,7 +1198,9 @@
       const sis = S.kv.taulukko
         ? taulukko(["Kuukausi", "Kiireetön", "Kiireellinen"], kk.map((m) => [A.kkNimi(m), per[m].e, per[m].k]))
         : `${f.alku}${palkit}${f.merkit}</svg>`;
-      osat.push(vizKortti("viz-kaynnit", "Terveysaseman käynnit", `${kaynnit.length} käyntiä valitulla aikavälillä${S.kv.alue !== "kaikki" ? " · " + A.ALUE[S.kv.alue].nimi.toLowerCase() : ""}`, ohj, sis, leg));
+      const kJ = kaynnit.filter((k) => k.pvm > an.lahtoPvm), kE = kaynnit.filter((k) => k.pvm <= an.lahtoPvm);
+      const yht = `Yhteenveto: ${S.kv.jakso === "kaikki" ? `ennen lähtötilannetta ${kE.length} käyntiä (kiireellisiä ${kE.filter((k) => k.kiire !== "E").length}), ` : ""}lähtötilanteen jälkeen ${kJ.length} käyntiä (kiireellisiä ${kJ.filter((k) => k.kiire !== "E").length}).`;
+      osat.push(vizKortti("viz-kaynnit", "Terveysaseman käynnit", `${kaynnit.length} käyntiä valitulla aikavälillä${S.kv.alue !== "kaikki" ? " · " + A.ALUE[S.kv.alue].nimi.toLowerCase() : ""}`, ohj, `<p class="vizsum">${esc(yht)}</p>${sis}`, leg));
     }
 
     // 2. kotihoidon käynnit kuukausittain
@@ -1195,7 +1225,10 @@
       const sis = S.kv.taulukko
         ? taulukko(["Kuukausi", "Kotikäynnit", "Minuutit", "Suunniteltu min"], kk.map((m) => [A.kkNimi(m), per[m]?.kotikaynnit ?? 0, per[m]?.min ?? 0, suunKk(m) ?? "–"]))
         : `${f.alku}${palkit}${suunViiva}${f.merkit}</svg>`;
-      osat.push(vizKortti("viz-kotihoito", "Kotihoidon käynnit", "Kuukausikooste sosiaalihuollon kontakteista · kuluva kuukausi on kesken", ohj, sis, leg));
+      const taydet = kk.filter((m) => m < an.viite.slice(0, 7) && per[m]);
+      const vm = taydet[taydet.length - 1];
+      const yht = vm ? `Yhteenveto: viimeisin täysi kuukausi, jolta käyntejä on kirjattu, ${A.kkNimi(vm)}: ${per[vm].kotikaynnit} kotikäyntiä, ${per[vm].min} min (${fmtNum(per[vm].min / paivatKk(vm))} min/vrk)${suun ? `; suunniteltu ${suun.maara} min/vrk` : ""}.` : "Yhteenveto: ei kirjattuja käyntejä valitulla aikavälillä.";
+      osat.push(vizKortti("viz-kotihoito", "Kotihoidon käynnit", "Kuukausikooste sosiaalihuollon kontakteista · kuluva kuukausi on kesken", ohj, `<p class="vizsum">${esc(yht)}</p>${sis}`, leg));
     }
 
     // 3. mittarit viivakaaviona lähtötilanteeseen verrattuna
@@ -1207,7 +1240,9 @@
       const sis = S.kv.taulukko
         ? taulukko(["Ajankohta", `${m.nimi}`], [...(m.ref ? [[`${m.ref.teksti} (vertailutaso)`, fmtNum(m.ref.arvo, m.desim)]] : []), ...m.pisteet.map((p) => [p.nimike, fmtNum(p.arvo, m.desim) + (p.kesken ? " (kesken)" : "")])])
         : m.pisteet.length ? viivaKaavio(an, kk, m) : `<p class="small muted">Ei arvoja valitulla aikavälillä.</p>`;
-      osat.push(vizKortti("viz-mittari", "Kehitys lähtötilanteeseen verrattuna", m.kuvaus, ohj, sis));
+      const av = m.pisteet.map((x) => x.arvo);
+      const yht = av.length ? `Yhteenveto: ${m.nimi} vaihteli ${fmtNum(Math.min(...av), m.desim)}–${fmtNum(Math.max(...av), m.desim)} ${m.yks}, viimeisin ${fmtNum(av[av.length - 1], m.desim)} ${m.yks}${m.ref ? `; vertailutaso ${fmtNum(m.ref.arvo, m.desim)} ${m.yks}` : ""}.` : "Yhteenveto: ei arvoja valitulla aikavälillä.";
+      osat.push(vizKortti("viz-mittari", "Kehitys lähtötilanteeseen verrattuna", m.kuvaus, ohj, `<p class="vizsum">${esc(yht)}</p>${sis}`));
     }
     // 4. säännöllinen ja tarvittaessa otettava lääkitys aikajanana
     if (an.oikeudet.laakkeet && v.laakkeet.length) {
@@ -1236,7 +1271,9 @@
       const sis = S.kv.taulukko
         ? taulukko(["Lääke", "Käyttötapa", "Jaksot"], lista.map((r) => [`${r.aine} (${r.atc})`, A.KAYTTOTAPA[r.tapa] || r.tapa, r.jaksot.map((j) => `${fmtPvm(j.a)}–${fmtPvm(j.b)}`).join(", ")]))
         : lista.length ? `${svgAlku}${palkit}${f.merkit}</svg>` : `<p class="small muted">Ei lääkkeitä valitussa ryhmässä tai aikavälillä.</p>`;
-      osat.push(vizKortti("viz-laake", "Lääkitys", "Reseptien uusinnat yhdistetty jaksoiksi", ohj, sis, leg));
+      const sl = lista.filter((r) => r.tapa === "SÄÄNNÖLLINEN");
+      const yht = `Yhteenveto: ${lista.length} lääkettä valitulla aikavälillä, joista säännöllisiä ${sl.length}${sl.length ? ` (${sl.map((r) => r.aine).join(", ")})` : ""} ja tarvittaessa otettavia ${lista.length - sl.length}.`;
+      osat.push(vizKortti("viz-laake", "Lääkitys", "Reseptien uusinnat yhdistetty jaksoiksi", ohj, `<p class="vizsum">${esc(yht)}</p>${sis}`, leg));
     }
 
     $("#vizgrid").innerHTML = osat.length ? osat.join("") : '<p class="small muted">Tämän roolin käyttötarkoitukseen ei kuulu kaavioina esitettäviä tietoja.</p>';
@@ -1283,19 +1320,34 @@
 
   /* ---------- modaali ---------- */
   let modalPaluu = null;
+  const tausta = () => [...root.children].filter((el) => el.id !== "modal");
   function avaaModal(otsikko, html) {
     modalPaluu = document.activeElement;
     $("#modalTitle").textContent = otsikko;
     $("#modalBody").innerHTML = html;
     $("#modal").hidden = false;
     document.body.classList.add("modal-open");
+    tausta().forEach((el) => el.setAttribute("inert", ""));
     $("#modalClose").focus();
   }
   function suljeModal() {
     $("#modal").hidden = true;
     document.body.classList.remove("modal-open");
+    tausta().forEach((el) => el.removeAttribute("inert"));
     modalPaluu?.focus?.();
   }
+  // Tab pysyy avoimen dialogin sisällä (modaali ja avustaja)
+  const KOHDISTETTAVAT = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, iframe, [tabindex]:not([tabindex="-1"])';
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
+    const d = $("#modal") && !$("#modal").hidden ? $("#modal") : $("#chat") && !$("#chat").hidden && $("#chat").contains(document.activeElement) ? $("#chat") : null;
+    if (!d) return;
+    const k = [...d.querySelectorAll(KOHDISTETTAVAT)].filter((el) => !el.closest("[hidden]") && el.offsetParent !== null);
+    if (!k.length) return;
+    const eka = k[0], vika = k[k.length - 1];
+    if (e.shiftKey && document.activeElement === eka) { e.preventDefault(); vika.focus(); }
+    else if (!e.shiftKey && document.activeElement === vika) { e.preventDefault(); eka.focus(); }
+  });
 
   /* =====================================================================
    * NÄKYMÄ: Säännöt ja laatu
@@ -1454,9 +1506,11 @@
    * PAIKALLINEN AVUSTAJA (sääntöpohjainen, kertoo olevansa tekoäly)
    * ===================================================================== */
   function avaaChat(auki) {
+    const oli = !$("#chat").hidden;
     $("#chat").hidden = !auki;
     $("#fab").setAttribute("aria-expanded", String(auki));
     if (auki) { paivitaChatChipit(); setTimeout(() => $("#chatInput")?.focus(), 30); }
+    else if (oli) $("#fab").focus();
   }
   function chatViesti(kuka, html) {
     const el = document.createElement("div");
@@ -1526,11 +1580,47 @@
     return "En tunnistanut kysymystä. Kokeile esim. ”Mikä on muuttunut?”, ”Mihin havainnot perustuvat?”, ”Mitä kannattaa tarkistaa?”, ”Lääkitys” tai ”Kaatumiset”.";
   }
 
-  /* ---------- tooltip ---------- */
+  /* ---------- tooltip: hiiri, näppäimistö ja kosketus ---------- */
   const tip = $("#tooltip");
-  document.addEventListener("pointerover", (e) => { const h = e.target.closest?.("[data-tt]"); if (!h) return; tip.textContent = h.dataset.tt; tip.hidden = false; });
-  document.addEventListener("pointermove", (e) => { if (tip.hidden) return; tip.style.left = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8) + "px"; tip.style.top = e.clientY + 16 + "px"; });
-  document.addEventListener("pointerout", (e) => { if (e.target.closest?.("[data-tt]")) tip.hidden = true; });
+  let tipAjastin = 0;
+  const naytaTip = (h, x, y) => {
+    tip.textContent = h.dataset.tt; tip.hidden = false;
+    if (x === undefined) { const r = h.getBoundingClientRect(); x = r.left + r.width / 2; y = r.bottom; }
+    tip.style.left = Math.max(8, Math.min(x + 14, window.innerWidth - tip.offsetWidth - 8)) + "px";
+    tip.style.top = Math.min(y + 16, window.innerHeight - tip.offsetHeight - 8) + "px";
+  };
+  document.addEventListener("pointerover", (e) => { if (e.pointerType === "touch") return; const h = e.target.closest?.("[data-tt]"); if (h) naytaTip(h, e.clientX, e.clientY); });
+  document.addEventListener("pointermove", (e) => { if (tip.hidden || e.pointerType === "touch") return; tip.style.left = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8) + "px"; tip.style.top = e.clientY + 16 + "px"; });
+  document.addEventListener("pointerout", (e) => { if (e.pointerType !== "touch" && e.target.closest?.("[data-tt]")) tip.hidden = true; });
+  document.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "touch") return;
+    const h = e.target.closest?.("[data-tt]");
+    clearTimeout(tipAjastin);
+    if (!h) { tip.hidden = true; return; }
+    naytaTip(h, e.clientX, e.clientY);
+    tipAjastin = setTimeout(() => (tip.hidden = true), 4000);
+  });
+  document.addEventListener("focusin", (e) => { const h = e.target.closest?.("[data-tt]"); if (h) naytaTip(h); });
+  document.addEventListener("focusout", (e) => { if (e.target.closest?.("[data-tt]")) tip.hidden = true; });
+
+  // Tooltip-tieto myös näppäimistön ja ruudunlukijan käyttäjälle: jokainen [data-tt] saa
+  // nimen ja (jos se ei ole valmiiksi kohdistettava) tabindexin. Asiakaskorttien sisällä
+  // pisteitä ei tehdä kohdistettaviksi – kortin linkki ja tiivistelmä riittävät.
+  function saavutettavat(juuri = document) {
+    for (const el of juuri.querySelectorAll("[data-tt]:not([data-a11y])")) {
+      el.dataset.a11y = "1";
+      if (el.closest(".donut")) continue;
+      const teksti = el.textContent.trim();
+      if (teksti) el.insertAdjacentHTML("beforeend", `<span class="sr"> – ${esc(el.dataset.tt)}</span>`);
+      else if (!el.hasAttribute("aria-label")) el.setAttribute("aria-label", el.dataset.tt);
+      if (el.closest(".ccard") && !el.classList.contains("ind")) continue;
+      if (!el.matches("a, button, input, select, textarea, [tabindex]")) {
+        el.setAttribute("tabindex", "0");
+        if (el instanceof SVGElement) el.setAttribute("role", "img");
+      }
+    }
+  }
+  new MutationObserver(() => saavutettavat()).observe(root, { childList: true, subtree: true });
 
   /* ---------- käynnistys ---------- */
   (async function () {
