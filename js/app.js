@@ -325,8 +325,7 @@
     lokiin({ asiakas: "–", toimenpide: "Uloskirjautuminen" });
     Istunto.lopeta();
     S.kayttaja = null;
-    history.replaceState(null, "", location.pathname);
-    nakymaKirjautuminen();
+    location.replace("index.html");
   }
 
   /* =====================================================================
@@ -1639,6 +1638,20 @@
   (async function () {
     if (!D || !Array.isArray(D.asiakkaat)) { root.innerHTML = '<p style="padding:2rem">Aineisto puuttuu (js/data.js). Aja tools/rakenna-aineisto.ps1.</p>'; return; }
     try { await alustaVarasto(); } catch (e) { root.innerHTML = `<p style="padding:2rem">${esc(e.message)}</p>`; return; }
+    // Simuloitu AD-kertakirjautuminen etusivulta (login.html?ad=<tunnus>). Vain demo:
+    // tuotannossa tunnistus tehdään Entra ID:llä palvelimella, ei selaimessa.
+    const ad = new URLSearchParams(location.search).get("ad");
+    if (ad) {
+      history.replaceState(null, "", location.pathname + location.hash);
+      const au = Varasto.lue("kayttajat", []).find((x) => x.tunnus === ad);
+      if (au) {
+        Istunto.luo(au.tunnus, false);
+        kaynnistaSovellus(au);
+        lokiin({ asiakas: "–", toimenpide: "Kirjautuminen (AD, demo)" });
+        toast(`Tervetuloa, ${A.ROOLIT[au.rooli].nimi.toLowerCase()}`, `Esitiedot on koottu valmiiksi ${omatAsiakkaat().length} asiakkaalle.`);
+        return;
+      }
+    }
     const i = Istunto.lue();
     const u = i && Varasto.lue("kayttajat", []).find((x) => x.tunnus === i.tunnus);
     if (u) kaynnistaSovellus(u); else nakymaKirjautuminen();

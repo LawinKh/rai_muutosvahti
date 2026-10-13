@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Copilot-tietopohjan vienti</title>
+  <style>
+    body { font: 15px/1.5 "Segoe UI", system-ui, sans-serif; margin: 2rem; max-width: 960px; }
+    pre { background: #f2f4f3; border: 1px solid #dbe1df; border-radius: 10px; padding: 1rem; max-height: 60vh; overflow: auto; font-size: 12px; white-space: pre-wrap; }
+    button { font: inherit; padding: .6rem 1rem; border-radius: 10px; border: 0; background: #0f5566; color: #fff; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Copilot Studio -tietopohjan vienti</h1>
+  <p>Muodostaa yhden JSON-tiedoston Copilot Studion tietolähteeksi. Sisältö lasketaan sovelluksen omalla agentilla
+    (js/agent.js) samasta synteettisestä aineistosta (js/data.js), joten havainnot vastaavat sovelluksen näkymää.</p>
+  <p><button type="button" id="lataa">Lataa copilot-tietopohja.json</button> <span id="koko"></span></p>
+  <pre id="json">Muodostetaan…</pre>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/agent.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      const A = window.RAIAgent, D = window.RAI_DATA;
+      const NAKYMAT = [["hoitaja", "rai"], ["laakari", "vastaanotto"], ["ohjaaja", "pta"]];
+      const TILA = { punainen: "Merkittävä kielteinen muutos", keltainen: "Seurattava muutos", vihrea: "Merkittävä myönteinen muutos", neutraali: "Ei muutoksia lähtötilanteeseen" };
+      const SUKUP = { MIES: "mies", NAINEN: "nainen" };
+
+      function nakyma(a, rooli, tilanne) {
+        const an = A.analysoi(a, rooli, tilanne);
+        const lahde = (l) => { const L = an.lahteet[l.id]; return { pvm: L ? L.pvm : null, jarjestelma: L ? L.jarj : null, ote: l.ote }; };
+        return {
+          rooli: A.ROOLIT[rooli].nimi,
+          arviointitilanne: A.TILANTEET[tilanne].nimi,
+          sallitutTiedot: Object.entries(an.oikeudet).filter(([, v]) => v).map(([k, v]) => (v === true ? k : `${k}: ${v}`)),
+          tila: TILA[an.tila],
+          tilannekuva: an.tilannekuva,
+          havainnot: an.signaalit.map((s) => ({
+            saanto: s.saanto,
+            taso: A.TASO_NIMI[s.taso],
+            osaAlue: A.ALUE[s.alue].nimi,
+            otsikko: s.otsikko,
+            mitaMuuttui: s.mitaMuuttui,
+            perustelu: s.perustelu,
+            havaittu: s.havaittu,
+            varmuus: s.varmuus,
+            lahteet: s.lahteet.map(lahde),
+            vastanaytto: s.vastanaytto.map(lahde),
+            tarkistettavat: s.tarkistettavat,
+            ehdotukset: s.ehdotukset.map((e) => e.replace(/^lomake:/, "Rakenteinen kysely: "))
+          })),
+          osaAlueet: an.alueet.filter((x) => x.olennainen).map((x) => ({
+            nimi: x.nimi,
+            lahtotilanne: x.lahto.map((f) => f.teksti),
+            lahtotilanteenJalkeen: x.jalkeen.map((f) => f.teksti)
+          })),
+          valmistauduKohtaamiseen: an.tarkistettavat
+        };
+      }
+
+      const asiakkaat = D.asiakkaat.map((a) => {
+        const an = A.analysoi(a, "hoitaja", "rai");
+        return {
+          asiakas: `Asiakas ${a.id.slice(-4)}`,
+          tunniste: a.id,
+          ika: a.ika, sukupuoli: SUKUP[a.sukupuoli] || a.sukupuoli, kotikunta: a.kotikunta,
+          asiointikieli: a.kieli === "sv" ? "ruotsi" : "suomi",
+          palvelu: a.lahto.palvelu,
+          lahtotilanne: { pvm: a.lahto.pvm, kuvaus: "Palvelutarpeen arviointi ja palvelupäätös", tuenTarve: a.lahto.tuenTarve, muisti: a.lahto.muisti ? a.lahto.muisti.split(";")[0] : null },
+          raiSeuranta: { erapaiva: an.seuranta.erapaiva, jaljellaVrk: an.seuranta.jaljella, tila: an.seuranta.jaljella < 0 ? `myöhässä ${-an.seuranta.jaljella} vrk` : `${an.seuranta.jaljella} vrk jäljellä` },
+          hoitosuhde: { sairaanhoitaja: a.lahto.palvelu === "Säännöllinen kotihoito", laakari: true, asiakasohjaaja: true },
+          nakymat: Object.fromEntries(NAKYMAT.map(([r, t]) => [r, nakyma(a, r, t)]))
+        };
+      });
+
+      const tietopohja = {
+        kuvaus: "RAI Muutosvahti – Copilot Studio -tietopohja. Rooli- ja tilannekohtaiset esitietokoosteet ikääntyneiden palvelujen asiakkaista RAI-arvioinnin osa-alueittain.",
+        versio: { aineisto: D.versio, saannot: A.SAANTOVERSIO, muodostettu: new Date().toISOString().slice(0, 10) },
+        viitepaiva: D.viitepaiva,
+        tietosuoja: "Kaikki tiedot ovat synteettisiä (LUVN / Veil.AI hackathon-aineisto). Ei oikeita henkilöitä. Aineistossa ei ole RAI-mittareita: lähtötilanteena käytetään palvelutarpeen arviointia ja palvelupäätöstä.",
+        kayttotarkoitus: "Esitietojen koonti ikääntyneen asiakkaan tilanteen arviointiin. Ratkaisu ei tee RAI-arviointia, diagnooseja, hoito- tai palvelupäätöksiä eikä pisteytä riskiä. Ammattilainen arvioi ja päättää.",
+        tilat: {
+          "Merkittävä kielteinen muutos": "Punainen ▲ – tarkista ensin.",
+          "Seurattava muutos": "Keltainen ◆ – seuraa ja tarkista.",
+          "Merkittävä myönteinen muutos": "Vihreä ↑ – kohentunut lähtötilanteesta.",
+          "Ei muutoksia lähtötilanteeseen": "Neutraali = – ei sääntöjen mukaan tarkistettavaa.",
+          "Tiedoksi": "Esim. RAI-seuranta-arvion ajankohta.",
+          "huom": "Värit kuvaavat tarkistamisen tarvetta, eivät asiakkaan riskiä tai palvelutarvetta."
+        },
+        varmuus: { "selvä": "Rakenteinen tieto (diagnoosikoodi, lääketietue).", "kohtalainen": "Tulkinta vaatii tarkistusta.", "epävarma": "Yksittäinen tai tilapäinen tieto, tai tiedon puuttumiseen perustuva.", "ristiriitainen": "Tiedoissa myös havaintoa vastaan puhuvaa tietoa." },
+        roolit: Object.fromEntries(Object.entries(A.ROOLIT).map(([k, r]) => [k, {
+          nimi: r.nimi, kuvaus: r.kuvaus,
+          tilanteet: r.tilanteet.map((t) => A.TILANTEET[t].nimi),
+          sallitutTiedot: Object.entries(r.oikeudet).filter(([, v]) => v).map(([kk, v]) => (v === true ? kk : `${kk}: ${v}`)),
+          eiSallitut: Object.entries(r.oikeudet).filter(([, v]) => !v).map(([kk]) => kk),
+          hoitosuhde: k === "hoitaja" ? "Vain säännöllisen kotihoidon asiakkaat" : "Kaikki 14 asiakasta"
+        }])),
+        raiOsaAlueet: A.ALUEET.map((x) => x.nimi),
+        saannot: A.SAANNOT.map((r) => ({ id: r.id, nimi: r.nimi, osaAlue: A.ALUE[r.alue].nimi, suunta: r.suunta === "myonteinen" ? "myönteinen" : "kielteinen tai seurattava", peruste: r.peruste, tiedot: r.tiedot, rajoitteet: r.rajoitteet })),
+        lomakkeet: D.lomakkeet.map((l) => ({ id: l.id, nimi: l.nimi, pisteet: `${l.min}–${l.max}`, ohje: l.ohje, kysymykset: l.kysymykset.map((q) => q.teksti) })),
+        asiakkaat
+      };
+
+      const json = JSON.stringify(tietopohja, null, 1);
+      document.getElementById("json").textContent = json;
+      document.getElementById("koko").textContent = `${Math.round(new Blob([json]).size / 1024)} kt · ${asiakkaat.length} asiakasta`;
+      document.getElementById("lataa").addEventListener("click", () => {
+        const url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+        const l = document.createElement("a"); l.href = url; l.download = "copilot-tietopohja.json"; l.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+    })();
+  </script>
+</body>
+</html>
