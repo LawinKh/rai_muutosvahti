@@ -22,6 +22,8 @@
   --st-yellow: #fab219;
   --st-green: #0ca30c;
   --st-info: #6b7f8c;
+  --st-neutral: #5f7a96;
+  --st-neutral-soft: #e9eff5;
   --st-red-soft: #fbeaea;
   --st-yellow-soft: #fef6dd;
   --st-green-soft: #e8f6e8;
@@ -59,6 +61,8 @@
     --st-red-soft: #3a2020;
     --st-yellow-soft: #3a3218;
     --st-green-soft: #1b301b;
+    --st-neutral: #8fa8c2;
+    --st-neutral-soft: #222b35;
     --chart-line: #5fb4cc;
     --chart-grid: #2c312f;
     --dot: #5b6662;
@@ -70,7 +74,7 @@
   --bg: #111413; --surface: #1a1d1c; --surface-2: #222625; --surface-3: #2a2f2d; --border: #333a37;
   --ink: #eef1ef; --ink-2: #c3cac7; --muted: #97a19d; --accent: #5fb4cc; --accent-2: #7fc8dc; --accent-ink: #0b1a1e;
   --accent-soft: #1b3036; --focus: #7fd0e6; --hero-1: #0b2e37; --hero-2: #12505e; --hero-ink-2: #a9cfd7;
-  --st-red-soft: #3a2020; --st-yellow-soft: #3a3218; --st-green-soft: #1b301b;
+  --st-red-soft: #3a2020; --st-yellow-soft: #3a3218; --st-green-soft: #1b301b; --st-neutral: #8fa8c2; --st-neutral-soft: #222b35;
   --chart-line: #5fb4cc; --chart-grid: #2c312f; --dot: #5b6662; --shadow: none; --shadow-lg: 0 18px 50px rgba(0,0,0,.5);
 }
 
@@ -113,11 +117,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .status--punainen .status__icon { fill: var(--st-red); }
 .status--keltainen .status__icon { fill: var(--st-yellow); }
 .status--vihrea .status__icon { fill: var(--st-green); }
+.status--neutraali .status__icon { fill: var(--st-neutral); }
 .status--info .status__icon { fill: none; stroke: var(--st-info); stroke-width: 2.5; }
 .pill { padding: .4rem .85rem; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-size: .92rem; }
 .pill.status--punainen { background: var(--st-red-soft); border-color: var(--st-red); }
 .pill.status--keltainen { background: var(--st-yellow-soft); border-color: var(--st-yellow); }
 .pill.status--vihrea { background: var(--st-green-soft); border-color: var(--st-green); }
+.pill.status--neutraali { background: var(--st-neutral-soft); border-color: var(--st-neutral); }
 .chip { display: inline-flex; align-items: center; gap: .35rem; border: 1px solid var(--border); background: var(--surface-2); border-radius: 999px; padding: .15rem .6rem; font-size: .78rem; color: var(--ink-2); max-width: 100%; }
 .chip .status__icon { width: 10px; height: 10px; }
 .chip--warn { border-color: var(--st-yellow); }
@@ -181,6 +187,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .avatar--punainen { background: var(--st-red-soft); color: var(--ink); box-shadow: inset 0 0 0 2px var(--st-red); }
 .avatar--keltainen { background: var(--st-yellow-soft); color: var(--ink); box-shadow: inset 0 0 0 2px var(--st-yellow); }
 .avatar--vihrea { background: var(--st-green-soft); color: var(--ink); box-shadow: inset 0 0 0 2px var(--st-green); }
+.avatar--neutraali { background: var(--st-neutral-soft); color: var(--ink); box-shadow: inset 0 0 0 2px var(--st-neutral); }
 
 .popover { position: absolute; right: 0; top: calc(100% + 8px); width: min(400px, calc(100vw - 32px)); max-height: 72vh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: .9rem; z-index: 30; }
 .popover h2 { font-size: 1rem; display: flex; justify-content: space-between; align-items: center; }
@@ -226,6 +233,7 @@ main:focus { outline: none; }
 .donut .seg--punainen { stroke: var(--st-red); }
 .donut .seg--keltainen { stroke: var(--st-yellow); }
 .donut .seg--vihrea { stroke: var(--st-green); }
+.donut .seg--neutraali { stroke: var(--st-neutral); }
 .donut .track { fill: none; stroke: var(--surface-3); stroke-width: 18; }
 .donut text { fill: var(--ink); font-family: var(--font-display); }
 .legend { list-style: none; padding: 0; margin: 0; display: grid; gap: .35rem; }
@@ -272,6 +280,7 @@ main:focus { outline: none; }
 .ccard::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 4px 4px 0; background: var(--st-green); }
 .ccard--punainen::before { background: var(--st-red); }
 .ccard--keltainen::before { background: var(--st-yellow); }
+.ccard--neutraali::before { background: var(--st-neutral); }
 .ccard__top { display: flex; align-items: center; gap: .75rem; }
 .ccard__name { flex: 1; min-width: 0; }
 .ccard__name strong { display: block; font-size: 1.02rem; }
@@ -535,11 +544,10 @@ code { font-size: .85em; background: var(--surface-2); border: 1px solid var(--b
 .chat__form input { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: 10px; padding: .5rem .7rem; background: var(--surface); }
 
 /* myönteinen muutos (vihreä) */
-.status--myonteinen .status__icon { fill: var(--st-green); }
-.signal--myonteinen::before, .domain--myonteinen::before { background: var(--st-green); }
-.raibar__ev--myonteinen { background: var(--st-green); width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; z-index: 1; }
-.raibar--lg .raibar__ev--myonteinen { width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; }
-.tl--myonteinen .tl__dot { background: var(--st-green); border-color: var(--st-green); }
+.signal--vihrea::before, .domain--vihrea::before { background: var(--st-green); }
+.raibar__ev--vihrea { background: var(--st-green); width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; z-index: 1; }
+.raibar--lg .raibar__ev--vihrea { width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; }
+.tl--vihrea .tl__dot { background: var(--st-green); border-color: var(--st-green); }
 .raikey i.g { background: var(--st-green); }
 
 /* kaaviot */

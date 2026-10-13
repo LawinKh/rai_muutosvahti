@@ -143,17 +143,17 @@
   const sukupuoli = (s) => ({ MIES: "mies", NAINEN: "nainen" }[s] || s.toLowerCase());
   const kieli = (k) => ({ fi: "suomi", sv: "ruotsi" }[k] || k);
   const PALVELU_LYHYT = { "Säännöllinen kotihoito": "Kotihoito", "Ympärivuorokautinen palveluasuminen": "Palveluasuminen" };
-  const TASO_TILA = { merkittava: "punainen", seurattava: "keltainen", myonteinen: "myonteinen", tiedoksi: "info" };
+  const TASO_TILA = { merkittava: "punainen", seurattava: "keltainen", myonteinen: "vihrea", tiedoksi: "info" };
 
   const IKONI = {
     punainen: '<svg class="status__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 15 14.5H1z"/></svg>',
     keltainen: '<svg class="status__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1 15 8 8 15 1 8z"/></svg>',
-    vihrea: '<svg class="status__icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/></svg>',
-    myonteinen: '<svg class="status__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 14.5 8H10.5v6.5h-5V8H1.5z"/></svg>',
+    vihrea: '<svg class="status__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 14.5 8H10.5v6.5h-5V8H1.5z"/></svg>',
+    neutraali: '<svg class="status__icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="4.5" width="12" height="2.6" rx="1.3"/><rect x="2" y="9" width="12" height="2.6" rx="1.3"/></svg>',
     info: '<svg class="status__icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/></svg>'
   };
-  const LYHYT = { punainen: "Merkittävä muutos", keltainen: "Seurattava muutos", vihrea: "Ei tarkistettavaa", myonteinen: "Myönteinen muutos", info: "Tiedoksi" };
-  const PITKA = { punainen: "Merkittävä muutos tarkistettavaksi", keltainen: "Seurattava muutos", vihrea: "Ei tarkistettavaa muutosta", myonteinen: "Myönteinen muutos lähtötilanteeseen nähden", info: "Tiedoksi" };
+  const LYHYT = { punainen: "Kielteinen muutos", keltainen: "Seurattava muutos", vihrea: "Myönteinen muutos", neutraali: "Ei muutoksia", info: "Tiedoksi" };
+  const PITKA = { punainen: "Merkittävä kielteinen muutos", keltainen: "Seurattava muutos", vihrea: "Merkittävä myönteinen muutos", neutraali: "Ei muutoksia lähtötilanteeseen", info: "Tiedoksi" };
   const status = (t, pitka = false, luokka = "") => `<span class="status status--${t} ${luokka}">${IKONI[t]}${esc(pitka ? PITKA[t] : LYHYT[t])}</span>`;
   const VARMUUS = {
     "selvä": "Havainto perustuu rakenteiseen tietoon (esim. diagnoosikoodi, lääketietue).",
@@ -482,7 +482,7 @@
     for (const s of an.signaalit) {
       if (s.taso === "tiedoksi") continue;
       const t = TASO_TILA[s.taso];
-      const PRI = { punainen: 3, keltainen: 2, myonteinen: 1 };
+      const PRI = { punainen: 3, keltainen: 2, vihrea: 1 };
       for (const l of s.lahteet) if (!m.has(l.id) || PRI[t] > PRI[m.get(l.id)]) m.set(l.id, t);
     }
     return m;
@@ -510,7 +510,7 @@
     const kohta = (d) => Math.min(100, Math.max(0, (erotusPv(d, alku) / pituus) * 100));
     const taso = signaaliTasot(an);
     const tap = aikajanaTietueet(an).filter((l) => l.pvm > alku && l.pvm <= tanaan && l.tyyppi !== "kotihoito")
-      .sort((x, y) => ({ punainen: 3, keltainen: 2, myonteinen: 1 }[taso.get(x.id)] || 0) - ({ punainen: 3, keltainen: 2, myonteinen: 1 }[taso.get(y.id)] || 0));
+      .sort((x, y) => ({ punainen: 3, keltainen: 2, vihrea: 1 }[taso.get(x.id)] || 0) - ({ punainen: 3, keltainen: 2, vihrea: 1 }[taso.get(y.id)] || 0));
     const pisteet = tap.map((l) => `<span class="raibar__ev${taso.has(l.id) ? " raibar__ev--" + taso.get(l.id) : ""}" style="left:${kohta(l.pvm).toFixed(2)}%" data-tt="${esc(fmtPvm(l.pvm) + " · " + l.otsikko)}"${iso ? ` data-lahde="${esc(l.id)}" role="button" tabindex="0" aria-label="${esc(fmtPvm(l.pvm) + ": " + l.otsikko)}"` : ""}></span>`).join("");
     const t = kohta(tanaan), e = kohta(era);
     const yli = an.seuranta.jaljella < 0;
@@ -542,7 +542,7 @@
   function nakymaKoti(app) {
     const u = S.kayttaja;
     const rivit = omatAnalyysit();
-    const lkm = { punainen: 0, keltainen: 0, vihrea: 0 };
+    const lkm = { punainen: 0, keltainen: 0, vihrea: 0, neutraali: 0 };
     rivit.forEach(({ an }) => lkm[an.tila]++);
     const tietueet = rivit.reduce((n, { an }) => n + Object.keys(an.lahteet).length, 0);
     const avoimet = avoimetSignaalit().length;
@@ -565,7 +565,7 @@
         <div class="hero__viz">
           ${donitsi(lkm, rivit.length)}
           <ul class="legend">
-            ${["punainen", "keltainen", "vihrea"].map((t) => `<li><button type="button" data-tila="${t}" aria-pressed="${f.tila === t}">${status(t, true)}<strong>${lkm[t]}</strong></button></li>`).join("")}
+            ${["punainen", "keltainen", "vihrea", "neutraali"].map((t) => `<li><button type="button" data-tila="${t}" aria-pressed="${f.tila === t}">${status(t, true)}<strong>${lkm[t]}</strong></button></li>`).join("")}
           </ul>
           <div class="hero__vizfoot">
             <span><strong>${tietueet}</strong> tietuetta koottu automaattisesti</span>
@@ -576,7 +576,7 @@
       </section>
 
       ${kiireelliset.length ? `
-        <div class="section-title"><h2>Tarkista nämä ensin</h2><span class="muted small">Merkittävä muutos lähtötilanteeseen nähden</span></div>
+        <div class="section-title"><h2>Tarkista nämä ensin</h2><span class="muted small">Merkittävä kielteinen muutos lähtötilanteeseen nähden</span></div>
         <div class="featured">${kiireelliset.map(({ a, an }) => asiakaskortti(a, an, true)).join("")}</div>` : ""}
 
       <div class="section-title" id="kaikki"><h2>Kaikki omat asiakkaat</h2><span class="muted small">${rivit.length} asiakasta · ${esc(HOITOSUHDE[u.hoitosuhde].kuvaus.toLowerCase())}</span></div>
@@ -585,7 +585,7 @@
         <div class="field field--seg">Tarkistamisen tarve
           <div class="seg" role="group" aria-label="Tarkistamisen tarve">
             <button type="button" data-seg="kaikki" aria-pressed="${f.tila === "kaikki"}">Kaikki</button>
-            ${["punainen", "keltainen", "vihrea"].map((t) => `<button type="button" data-seg="${t}" aria-pressed="${f.tila === t}"><span class="status status--${t}">${IKONI[t]}</span>${{ punainen: "Merkittävä", keltainen: "Seurattava", vihrea: "Ei muutosta" }[t]}</button>`).join("")}
+            ${["punainen", "keltainen", "vihrea", "neutraali"].map((t) => `<button type="button" data-seg="${t}" aria-pressed="${f.tila === t}"><span class="status status--${t}">${IKONI[t]}</span>${{ punainen: "Kielteinen", keltainen: "Seurattava", vihrea: "Myönteinen", neutraali: "Ei muutoksia" }[t]}</button>`).join("")}
           </div>
         </div>
         <label class="field">Palvelu<select id="fPalvelu">${opt("kaikki", "Kaikki palvelut", f.palvelu)}${palvelut.map((p) => opt(p, p, f.palvelu)).join("")}</select></label>
@@ -602,7 +602,7 @@
 
   function donitsi(lkm, yht) {
     const r = 62, C = 2 * Math.PI * r, rako = 3;
-    const osat = ["punainen", "keltainen", "vihrea"].filter((t) => lkm[t] > 0);
+    const osat = ["punainen", "keltainen", "vihrea", "neutraali"].filter((t) => lkm[t] > 0);
     let siirto = 0;
     const kaaret = osat.map((t) => {
       const pit = (lkm[t] / Math.max(1, yht)) * C;
@@ -611,7 +611,7 @@
       siirto += pit;
       return s;
     }).join("");
-    return `<svg class="donut" viewBox="0 0 160 160" role="img" aria-label="${yht} asiakasta: ${lkm.punainen} merkittävä muutos, ${lkm.keltainen} seurattava muutos, ${lkm.vihrea} ei tarkistettavaa.">
+    return `<svg class="donut" viewBox="0 0 160 160" role="img" aria-label="${yht} asiakasta: ${lkm.punainen} merkittävä kielteinen muutos, ${lkm.keltainen} seurattava muutos, ${lkm.vihrea} merkittävä myönteinen muutos, ${lkm.neutraali} ei muutoksia.">
       <circle class="track" cx="80" cy="80" r="${r}"></circle>
       <g transform="rotate(-90 80 80)">${kaaret}</g>
       <text x="80" y="80" text-anchor="middle" font-size="36" font-weight="700">${lkm.punainen + lkm.keltainen}</text>
@@ -639,7 +639,7 @@
   function piirraLista() {
     const f = S.suodatin;
     const q = f.haku.trim().toLowerCase();
-    const jarjestys = { punainen: 3, keltainen: 2, vihrea: 1 };
+    const jarjestys = { punainen: 4, keltainen: 3, vihrea: 2, neutraali: 1 };
     const rivit = omatAnalyysit()
       .filter(({ a, an }) => (f.tila === "kaikki" || an.tila === f.tila) && (f.palvelu === "kaikki" || a.lahto.palvelu === f.palvelu) && (!q || a.id.toLowerCase().includes(q) || a.kotikunta.toLowerCase().includes(q) || nimi(a).toLowerCase().includes(q)))
       .sort((x, y) => jarjestys[y.an.tila] - jarjestys[x.an.tila] || x.a.id.localeCompare(y.a.id));
@@ -703,7 +703,7 @@
           <h2>Lähtötilanteesta tähän päivään</h2>
           <p class="small muted">Lähtötilanteena on palvelutarpeen arviointi ja palvelupäätös ${fmtPvm(an.lahtoPvm)} (aineistossa ei ole RAI-mittareita). Pisteet ovat lähtötilanteen jälkeen kertyneitä tietueita – värilliset liittyvät havaintoihin. Valitse piste avataksesi lähteen.</p>
           ${raiVali(a, an, true)}
-          <div class="raikey"><span><i></i>Tietue</span><span><i class="o"></i>Seurattava muutos</span><span><i class="r"></i>Merkittävä muutos</span><span><i class="g"></i>Myönteinen muutos</span><span><i class="d"></i>Seuranta-arvio 6 kk</span><span><i class="t"></i>Tänään</span></div>
+          <div class="raikey"><span><i></i>Tietue</span><span><i class="o"></i>Seurattava muutos</span><span><i class="r"></i>Merkittävä kielteinen muutos</span><span><i class="g"></i>Merkittävä myönteinen muutos</span><span><i class="d"></i>Seuranta-arvio 6 kk</span><span><i class="t"></i>Tänään</span></div>
         </div>
       </section>
 
@@ -835,11 +835,11 @@
   /* ---------- osa-aluekortti ---------- */
   function alueKortti(a, an, al, avaaSaanto) {
     const sig = al.signaalit;
-    const t = sig.some((s) => s.taso === "merkittava") ? "punainen" : sig.some((s) => s.taso === "seurattava") ? "keltainen" : sig.some((s) => s.taso === "myonteinen") ? "myonteinen" : sig.length ? "info" : null;
+    const t = sig.some((s) => s.taso === "merkittava") ? "punainen" : sig.some((s) => s.taso === "seurattava") ? "keltainen" : sig.some((s) => s.taso === "myonteinen") ? "vihrea" : sig.length ? "info" : null;
     const tyhja = !al.lahto.length && !al.jalkeen.length && !sig.length;
     const lomakkeet = (S.lomakkeet[a.id] || []).filter((l) => (l.id === "AUDIT" ? al.id === "terveys" : al.id === "mieliala"));
     const fakta = (f) => `<li>${esc(f.teksti)}${f.id && an.lahteet[f.id] ? ` <button type="button" class="srcbtn" data-lahde="${esc(f.id)}" aria-label="Avaa lähde">${SVG.lahde}lähde</button>` : ""}</li>`;
-    const merkki = t ? status(t, false) : tyhja ? '<span class="chip">Ei tietoa aineistossa</span>' : '<span class="status status--vihrea">' + IKONI.vihrea + "Ei havaittua muutosta</span>";
+    const merkki = t ? status(t, false) : tyhja ? '<span class="chip">Ei tietoa aineistossa</span>' : '<span class="status status--neutraali">' + IKONI.neutraali + "Ei muutoksia</span>";
     return `<section class="card domain${t ? " domain--" + t : ""}" id="alue-${esc(al.id)}">
       <div class="domain__head"><h3>${esc(al.nimi)}</h3>${merkki}</div>
       ${tyhja ? `<p class="small muted">Käytettävissä olevissa tiedoissa ei ole tätä osa-aluetta kuvaavaa tietoa${al.id === "ravitsemus" ? " (esim. paino tai ruokahalu)" : ""}. Tarkista tarvittaessa asiakkaan kanssa.</p>` : `
@@ -1300,7 +1300,7 @@
           const t = tilastot[r.id] || { n: 0, oikea: 0, virhe: 0, epavarma: 0 };
           const arvioitu = t.oikea + t.virhe + t.epavarma;
           return `<section class="card rulecard">
-            <div class="card__head"><h3>${esc(r.nimi)} <span class="muted small">${esc(r.id)}</span></h3><span class="chip">${r.suunta === "myonteinen" ? `<span class="status status--myonteinen">${IKONI.myonteinen}</span>Myönteinen suunta · ` : ""}${esc(A.ALUE[r.alue].nimi)}</span></div>
+            <div class="card__head"><h3>${esc(r.nimi)} <span class="muted small">${esc(r.id)}</span></h3><span class="chip">${r.suunta === "myonteinen" ? `<span class="status status--vihrea">${IKONI.vihrea}</span>Myönteinen suunta · ` : ""}${esc(A.ALUE[r.alue].nimi)}</span></div>
             <p class="label">Peruste ja raja-arvot</p><p class="small">${esc(r.peruste)}</p>
             <p class="label">Käytetyt tiedot</p><p class="small">${esc(r.tiedot)}</p>
             <p class="label">Tunnetut rajoitteet ja virhehälytysten lähteet</p><p class="small">${esc(r.rajoitteet)}</p>
@@ -1471,7 +1471,7 @@
       const rivit = omatAnalyysit();
       if (/ensin|kiire|tärke|ketkä|kenet/.test(q)) {
         const pun = rivit.filter((r) => r.an.tila === "punainen");
-        return pun.length ? `Merkittävä muutos lähtötilanteeseen nähden ${pun.length} asiakkaalla (tilanne: ${esc(A.TILANTEET[S.tilanne].nimi)}):${lista(pun.map(({ a, an: x }) => `<a href="#/asiakas/${esc(a.id)}">${esc(nimi(a))}</a>: ${esc(x.signaalit[0].otsikko)}`))}Järjestys ei ole riskiluokitus.` : "Kenelläkään omista asiakkaistasi ei ole sääntöjen mukaan merkittävää muutosta.";
+        return pun.length ? `Merkittävä kielteinen muutos lähtötilanteeseen nähden ${pun.length} asiakkaalla (tilanne: ${esc(A.TILANTEET[S.tilanne].nimi)}):${lista(pun.map(({ a, an: x }) => `<a href="#/asiakas/${esc(a.id)}">${esc(nimi(a))}</a>: ${esc(x.signaalit[0].otsikko)}`))}Järjestys ei ole riskiluokitus.` : "Kenelläkään omista asiakkaistasi ei ole sääntöjen mukaan merkittävää muutosta.";
       }
       if (/arvioimatta|montako|kuinka monta/.test(q)) { const n = avoimetSignaalit().length; return `${n} havaintoa on vielä arvioimatta omissa asiakkaissasi.`; }
       return "Avaa asiakkaan esitietokooste, niin voin kertoa hänen tiedoistaan. Koontinäkymässä voit kysyä esim. ”Ketkä tarkistan ensin?”.";

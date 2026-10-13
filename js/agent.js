@@ -797,7 +797,7 @@
   ];
 
   const TASO = { merkittava: 4, seurattava: 3, myonteinen: 2, tiedoksi: 1 };
-  const TASO_NIMI = { merkittava: "Merkittävä muutos tarkistettavaksi", seurattava: "Seurattava muutos", myonteinen: "Myönteinen muutos", tiedoksi: "Tiedoksi" };
+  const TASO_NIMI = { merkittava: "Merkittävä kielteinen muutos", seurattava: "Seurattava muutos", myonteinen: "Merkittävä myönteinen muutos", tiedoksi: "Tiedoksi" };
 
   /* =====================================================================
    * 5. OSA-ALUEIDEN KOOSTE: lähtötilanne ja sen jälkeen kertynyt tieto
@@ -904,7 +904,7 @@
       signaalit.push({ saanto: s.id, alue: h.alue || s.alue, peruste: s.peruste, ...h, avain: `${asiakas.id}:${s.id}` });
     }
     signaalit.sort((x, y) => TASO[y.taso] - TASO[x.taso] || x.havaittu.localeCompare(y.havaittu));
-    const tila = signaalit.some((s) => s.taso === "merkittava") ? "punainen" : signaalit.some((s) => s.taso === "seurattava") ? "keltainen" : "vihrea";
+    const tila = signaalit.some((s) => s.taso === "merkittava") ? "punainen" : signaalit.some((s) => s.taso === "seurattava") ? "keltainen" : signaalit.some((s) => s.taso === "myonteinen") ? "vihrea" : "neutraali";
 
     const kooste = alueKooste(ctx, laake);
     const tilanne = TILANTEET[tilanneId];
@@ -942,7 +942,8 @@
     const alku = `Lähtötilanne: ${pieni(a.lahto.palvelu)} myönnetty ${fmtPvm(ctx.L)} (${ctx.jaksoPv} vrk sitten). Sen jälkeen ${lkm(ctx.kaynnitJ.length, "terveysaseman käynti", "terveysaseman käyntiä")}${o.dx ? "" : " (diagnoosit eivät ole tämän käyttötarkoituksen tietoja)"}.`;
     const m = signaalit.filter((s) => s.taso === "merkittava"), s2 = signaalit.filter((s) => s.taso === "seurattava"), my = signaalit.filter((s) => s.taso === "myonteinen");
     const myTeksti = my.length ? ` Myönteiseen suuntaan: ${my.map((x) => pieni(x.otsikko)).join("; ")}.` : "";
-    if (tila === "vihrea") return `${alku} Käytettävissä olevissa tiedoissa ei tunnistettu lähtötilanteeseen nähden muutoksia, jotka sääntöjen mukaan nostetaan tarkistettavaksi.${myTeksti} Ammattilainen arvioi tilanteen normaalin seurannan yhteydessä.`;
+    if (tila === "neutraali") return `${alku} Käytettävissä olevissa tiedoissa ei tunnistettu lähtötilanteeseen nähden muutoksia: tilanne vastaa lähtötilannetta. Ammattilainen arvioi tilanteen normaalin seurannan yhteydessä.`;
+    if (tila === "vihrea") return `${alku} Tiedoissa ei tunnistettu kielteisiä muutoksia.${myTeksti} Ammattilainen arvioi, vastaako havainto asiakkaan omaa kokemusta.`;
     const osat = [alku];
     if (m.length) osat.push(`Merkittäviä muutoksia tarkistettavaksi: ${m.map((x) => pieni(x.otsikko)).join("; ")}.`);
     if (s2.length) osat.push(`Seurattavia muutoksia: ${s2.map((x) => pieni(x.otsikko)).join("; ")}.`);
