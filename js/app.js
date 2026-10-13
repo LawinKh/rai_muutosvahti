@@ -594,7 +594,7 @@
     rivit.forEach(({ an }) => lkm[an.tila]++);
     const tietueet = rivit.reduce((n, { an }) => n + Object.keys(an.lahteet).length, 0);
     const avoimet = avoimetSignaalit().length;
-    const kiireelliset = rivit.filter(({ an }) => an.tila === "punainen").sort((x, y) => y.an.signaalit.length - x.an.signaalit.length);
+    const kiireelliset = rivit.filter(({ an }) => an.tila === "punainen").sort(muutosJarjestys);
     const f = S.suodatin;
     const palvelut = [...new Set(rivit.map(({ a }) => a.lahto.palvelu))];
     const jarj = new Set(rivit.flatMap(({ an }) => Object.values(an.lahteet).map((l) => l.jarj.split(" · ")[0])));
@@ -625,10 +625,10 @@
       </section>
 
       ${kiireelliset.length ? `
-        <div class="section-title"><h2>Tarkista nämä ensin</h2><span class="muted small">Merkittävä kielteinen muutos lähtötilanteeseen nähden</span></div>
+        <div class="section-title"><h2>Tarkista nämä ensin</h2><span class="muted small">Eniten merkittäviä kielteisiä muutoksia ensin</span></div>
         <div class="featured">${kiireelliset.map(({ a, an }) => asiakaskortti(a, an, true)).join("")}</div>` : ""}
 
-      <div class="section-title" id="kaikki"><h2>Kaikki omat asiakkaat</h2><span class="muted small">${rivit.length} asiakasta · ${esc(HOITOSUHDE[u.hoitosuhde].kuvaus.toLowerCase())}</span></div>
+      <div class="section-title" id="kaikki"><h2>Kaikki omat asiakkaat</h2><span class="muted small">${rivit.length} asiakasta · ${esc(HOITOSUHDE[u.hoitosuhde].kuvaus.toLowerCase())} · järjestys: ▲ merkittävät kielteiset, ◆ seurattavat, ↑ myönteiset</span></div>
       <div class="toolbar">
         <label class="field field--search">Hae<input type="search" id="fHaku" value="${esc(f.haku)}" placeholder="Asiakasnumero tai kunta" autocomplete="off"></label>
         <div class="field field--seg">Tarkistamisen tarve
@@ -679,6 +679,7 @@
       <div class="ccard__top">
         <span class="avatar avatar--${an.tila}">${esc(tunnus(a))}</span>
         <div class="ccard__name"><strong><a class="ccard__link" href="#/asiakas/${esc(a.id)}">${esc(nimi(a))}<span class="sr">, ${esc(PITKA[an.tila].toLowerCase())}</span></a></strong><span>${a.ika} v · ${esc(sukupuoli(a.sukupuoli))} · ${esc(a.kotikunta)} · ${esc(PALVELU_LYHYT[a.lahto.palvelu] || a.lahto.palvelu)}</span>${status(an.tila, false, "", true)}</div>
+        ${maaraHtml(an)}
       </div>
       ${indHtml(indikaattorit(a, an))}
       ${iso && paa ? `<p class="ccard__lead"><strong>${esc(paa.otsikko)}.</strong> ${esc(paa.mitaMuuttui)}</p>` : ""}
@@ -688,13 +689,25 @@
     </article>`;
   }
 
+  // Muutosmäärät ja järjestys: eniten merkittäviä kielteisiä, sitten seurattavia, sitten myönteisiä
+  const maarat = (an) => ({
+    m: an.signaalit.filter((s) => s.taso === "merkittava").length,
+    s: an.signaalit.filter((s) => s.taso === "seurattava").length,
+    y: an.signaalit.filter((s) => s.taso === "myonteinen").length
+  });
+  const muutosJarjestys = (x, y) => { const a = maarat(x.an), b = maarat(y.an); return b.m - a.m || b.s - a.s || b.y - a.y || x.a.id.localeCompare(y.a.id); };
+  function maaraHtml(an) {
+    const n = maarat(an);
+    const osa = (luokka, ikoni, arvo, nimi) => `<span class="ccount__i ccount__i--${luokka}${arvo ? "" : " ccount__i--nolla"}"><span class="status status--${luokka}">${IKONI[ikoni]}</span>${arvo}<span class="sr"> ${nimi}</span></span>`;
+    return `<div class="ccount" title="Merkittävät kielteiset · seurattavat · myönteiset muutokset">${osa("punainen", "punainen", n.m, "merkittävää kielteistä muutosta")}${n.s ? osa("keltainen", "keltainen", n.s, "seurattavaa muutosta") : ""}${n.y ? osa("vihrea", "vihrea", n.y, "myönteistä muutosta") : ""}</div>`;
+  }
+
   function piirraLista() {
     const f = S.suodatin;
     const q = f.haku.trim().toLowerCase();
-    const jarjestys = { punainen: 4, keltainen: 3, vihrea: 2, neutraali: 1 };
     const rivit = omatAnalyysit()
       .filter(({ a, an }) => (f.tila === "kaikki" || an.tila === f.tila) && (f.palvelu === "kaikki" || a.lahto.palvelu === f.palvelu) && (f.ind === "kaikki" || indikaattorit(a, an).some((i) => i.id === f.ind)) && (!q || a.id.toLowerCase().includes(q) || a.kotikunta.toLowerCase().includes(q) || nimi(a).toLowerCase().includes(q)))
-      .sort((x, y) => jarjestys[y.an.tila] - jarjestys[x.an.tila] || x.a.id.localeCompare(y.a.id));
+      .sort(muutosJarjestys);
     $("#lista").innerHTML = rivit.length ? rivit.map(({ a, an }) => asiakaskortti(a, an)).join("") : '<p class="empty">Ei hakua vastaavia asiakkaita.</p>';
   }
 
