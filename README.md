@@ -1,162 +1,207 @@
 # RAI Muutosvahti
 
-**AI ei päätä. AI huomaa. Ammattilainen arvioi ja kohtaa asiakkaan.**
+**AI ei päätä. AI huomaa. Ammattilainen arvioi.**
+
+*Oikeat tiedot oikealle ammattilaiselle.* RAI Muutosvahti kokoaa ikääntyneen asiakkaan esitiedot sosiaali- ja terveydenhuollon tiedoista RAI-arvioinnin osa-alueittain. Kooste muodostetaan ammattilaisen roolin ja arviointitilanteen mukaan, ja jokaisesta muutoksesta näytetään peruste ja lähde.
 
 SOTE AI Hackathon 2026 (Dipoli, 13.–14.10.2026) · Haaste 1.1: *Esitietojen koonti – oikeat tiedot oikealle ammattilaiselle*
 
-## Versio 2.0 (13.10.2026): hackathon_data-aineistolla
-
-Sovellus käyttää nyt **vain** `hackathon_data`-kansion aineistoa:
-
-- `LUVN_synteettinenData_VEIL/2024-2026`: 14 ikääntyneiden palvelujen asiakasta, joilla on myönteinen kotihoito- tai palveluasumispäätös sekä sosiaali- että terveystiedot (käynnit, diagnoosit, lääkitys, laboratorio, käyntimuistiinpano, vireilletulot, päätökset, palvelut, kotihoidon käynnit ja suunnitelma).
-- `Esitieto_lomakkeet_hackathon_json`: PHQ-9, GAD-7 ja AUDIT täytettävinä lomakkeina (kysymykset ja pisteet aineistosta).
-
-Aineistossa ei ole RAI-mittareita. **Lähtötilanteena** käytetään palvelutarpeen arviointia ja palvelupäätöstä, ja sen jälkeen kertyneet tiedot jäsennetään RAI-arvioinnin osa-alueisiin. Viitepäivä on 13.10.2026; myöhemmät tiedot jätetään pois.
-
-**Aineiston rakentaminen** (PowerShell 5.1, ei asennuksia): `.\tools\rakenna-aineisto.ps1` → `js/data.js` ja `data/aineisto.json`. `-Ehdokkaat` listaa valittavissa olevat asiakkaat. Minimointi: terveystiedot vain lähtötilannetta edeltävältä vuodelta ja sen jälkeen, kotihoidon käynnit kuukausitasolla, ei henkilötunnuksia tai lomakkeiden laatijatietoja.
-
-**Käynnistys:** avaa `index.html` (etusivu) tai suoraan `login.html` (kirjautuminen ja sovellus), tai `kaynnista-sovellustilassa.cmd` (Edgen sovellustila). Toimii ilman verkkoyhteyttä.
-
-**Työpöytäsovellus:** kaksoisnapsauta `asenna-tyopoytasovellus.cmd`. Se luo työpöydälle ja Käynnistä-valikkoon kuvakkeen **RAI Muutosvahti** (`rai-muutosvahti.ico`), joka avaa sovelluksen omaan ikkunaansa ilman osoiteriviä. Ei asennettavia ohjelmia (käyttää Edgeä). Jos projektikansio siirretään, aja asennus uudelleen. Poisto: `asenna-tyopoytasovellus.cmd -Poista`.
-
-| Tunnus | Rooli | Arviointitilanteet | Hoitosuhde |
-|---|---|---|---|
-| `sanna` | Sairaanhoitaja, kotihoito | RAI-seuranta-arvio, Lääkehoidon arviointi | 11 kotihoidon asiakasta |
-| `lauri` | Lääkäri | Lääkärin vastaanotto, Lääkehoidon arviointi, RAI-seuranta-arvio | kaikki 14 |
-| `fiia` | Fysioterapeutti | RAI-seuranta-arvio (painotus: arki, liikkuminen, kipu) | kaikki 14 (ei lääkitystä, laboratoriota tai päätöstekstejä) |
-| `sofia` | Sosiaalityöntekijä | RAI-seuranta-arvio, Palvelutarpeen arviointi | kaikki 14 (ei diagnooseja, lääkitystä tai laboratoriota) |
-
-RAI-seuranta-arviossa roolin painotus (`raiPainotus`, `js/agent.js`) määrää keskeiset osa-alueet; muut RAI-osa-alueet näytetään erikseen avattavina. Painotus perustuu tiedostoihin `new_data/roolit/roles/*.txt` eikä laajenna käyttöoikeuksia.
-
-Salasana kaikille: `Muutosvahti2026` (tallennetaan suolattuna SHA-256-tiivisteenä).
-
-| Tiedosto | Sisältö |
-|---|---|
-| `js/agent.js` | Sääntöpohjainen agentti: rooli- ja tilannekohtainen tietojen rajaus, lähtötilanne vs. jälkeen RAI-osa-alueittain, 14 sääntöä (peruste, lähteet, vastanäyttö, varmuus) |
-| `js/app.js` | Käyttöliittymä: kirjautuminen, koontinäkymä, esitietokooste, lähteiden avaus, ammattilaisen arvio ja jatkotoimet, lomakkeet, säännöt ja virhehälytysten seuranta, käyttötarkoitus ja RBAC-matriisi, käyttöloki, paikallinen tekoälyavustaja (+ valinnainen Copilot Studio) |
-| `tools/rakenna-aineisto.ps1` | Aineiston poiminta hackathon_data-kansiosta |
-
-**Demon kulku (3–5 min):** kirjaudu `sanna` → koontinäkymä (7/11 merkittävä muutos, värit = tarkistamisen tarve) → *Asiakas 9422*: kaatumistaipumus kirjattu lähtötilanteen jälkeen, kaatumisen pelko rajoittaa liikkumista, kotihoito päättynyt 31.5.2026 → avaa lähde (käyntimuistiinpano) → arvioi havainto ja kirjaa jatkotoimet → kirjaudu `lauri` → *Asiakas 3245*: uusi ahdistuneisuuskirjaus + essitalopraami → täytä GAD-7 → kirjaudu `outi` samaan asiakkaaseen: diagnoosit ja lääkitys rajattu pois, näkyy palveluprosessi ja toimintakyky → *Säännöt ja laatu* ja *Loki*.
-
-*Alla olevat osiot kuvaavat edellistä, mock-aineistoon perustunutta versiota ja säilytetään viitteenä.*
+> Kaikki aineisto on synteettistä. Säännöt ja raja-arvot ovat demon sääntöjä, eivät kliinisiä tai virallisia RAI-hälytysrajoja.
 
 ---
 
-RAI Muutosvahti kokoaa ikääntyneen asiakkaan RAI-arvioinnin jälkeen kertyneen asiakas- ja potilastiedon,
-tunnistaa olennaiset muutokset ja nostaa ammattilaiselle perustellut muutossignaalit tarkistettavaksi.
+## Lyhyesti
 
-> Kaikki aineisto on synteettistä. Signaalit ja raja-arvot ovat demon sääntöjä, eivät virallisia RAI-hälytysrajoja.
-
-## Käynnistys
-
-Ei asennuksia eikä build-vaihetta. Avaa `index.html` selaimessa (Edge, Chrome, Firefox). Sivu toimii ilman verkkoyhteyttä.
-
-**Demotunnukset** (salasana `Muutosvahti2026`):
-
-| Tunnus | Rooli | Näkee |
-|---|---|---|
-| `anna` | Kotihoidon vastuuhoitaja | Kaikki 7 asiakasta, joiden vastuuhoitaja hän on |
-| `leena` | Omalääkäri | 4 asiakasta, joiden omalääkäri hän on (omalääkärimalli) |
-
-## Kirjautuminen ja paikallinen tallennus
-
-- Ensimmäisellä avauskerralla demoaineisto ja käyttäjät tallennetaan selaimen paikalliseen muistiin (`localStorage`, avaimet `raimv:*`).
-- Salasanat tallennetaan SHA-256-tiivisteinä satunnaisella suolalla, eivät selkokielisinä. Viiden virheellisen yrityksen jälkeen kirjautuminen lukittuu 30 sekunniksi.
-- Istunto kestää 8 h (välilehden ajan). *Muista minut* -valinnalla istunto kestää 7 vrk.
-- Lisätyt kirjaukset, ammattilaisen arviot ja toimintaloki tallentuvat paikallisesti ja säilyvät sivun uudelleenlatauksen yli.
-- Käyttäjävalikko: *Lataa aineisto (JSON)*, *Tuo aineisto (JSON)*, *Palauta demoaineisto*, *Tyhjennä paikallinen muisti*, *Kirjaudu ulos*.
-
-**Huom:** kirjautuminen on selainpohjainen demo, ei oikea palvelinpuolen tunnistus. Kuka tahansa laitteen käyttäjä voi lukea
-selaimen paikallisen muistin. Tuotannossa tunnistus (esim. hyvinvointialueen Entra ID / Suomi.fi) ja tiedot kuuluvat
-palvelimelle, ja potilastietoa ei tallenneta selaimeen.
-
-## Rakenne
-
-| Tiedosto | Sisältö |
+| | |
 |---|---|
-| `index.html` | Verkkosivu (suomeksi) |
-| `css/styles.css` | Ulkoasu, vaalea ja tumma teema, mobiili |
-| `js/data.js` | Synteettinen mock-aineisto: 7 asiakasta, RAI-lähtötilanne ja 60 tapahtumaa |
-| `js/agent.js` | Agentti: muutosanalyysi ja tilannekuva |
-| `js/app.js` | Käyttöliittymä, kirjautuminen ja paikallinen tallennus |
-| `data/mock-asiakkaat.json` | Sama aineisto JSON-muodossa (Copilot Studion tietolähde) |
-| `agent/AGENTIN_OHJEET.md` | Agentin ohjeet ja tulosformaatti Copilot Studioon |
-| `copilot-agentti.html` | Tiimin alkuperäinen Copilot Studio -webchat-upotus |
+| **Ongelma** | Ennen RAI-arviointia tai vastaanottoa ammattilainen etsii asiakkaan muuttuneen tilanteen hajallaan olevista käynneistä, diagnooseista, lääkityksestä, laboratoriotuloksista, kotihoidon käynneistä ja sosiaalihuollon päätöksistä. Työ vie aikaa, ja olennainen muutos voi jäädä huomaamatta. |
+| **Ratkaisu** | Muutosvahti vertaa lähtötilanteen jälkeen kertynyttä tietoa lähtötilanteeseen. Se jäsentää tiedot kymmeneen RAI-osa-alueeseen ja nostaa esiin muutokset, joilla on peruste, ajankohta, lähteet, vastanäyttö ja varmuus. |
+| **Kenelle** | Ikääntyneiden palvelujen ammattilaiset: sairaanhoitaja (RAI-arvioija), lääkäri, fysioterapeutti ja sosiaalityöntekijä. Ostajana hyvinvointialue. |
+| **Erottuu** | Jokainen rooli näkee vain käyttötarkoitukseensa kuuluvat tiedot. Havainnot ovat sääntöpohjaisia ja jäljitettäviä, eivät mustan laatikon ennusteita. Ammattilainen arvioi jokaisen havainnon, ja virhehälytyksiä seurataan sääntökohtaisesti. |
+| **Tila** | Toimiva prototyyppi hackathonin synteettisellä aineistolla (14 asiakasta). Toimii selaimessa ja työpöytäsovelluksena ilman asennuksia ja ilman verkkoyhteyttä. Mukana Microsoft Copilot Studio -tekoälyagentti **RAI 007**. |
 
-## Näkymät
+---
 
-**Kirjautuminen**: konseptin ydinviesti ja toimintamalli (RAI-arviointi → uusi tieto → muutossignaali → ammattilainen arvioi → kohtaaminen).
+## Ongelma
 
-**Omat asiakkaat**
-- Ydinidea keskiössä: "Huomaa muutos ennen seuraavaa RAI-arviointia" ja kooste omista asiakkaista (merkittävä / seurattava / ennallaan).
-- *Tarkista nämä ensin*: asiakkaat, joilla on merkittävä muutos, tärkein muutos auki kirjoitettuna.
-- Jokaisella asiakaskortilla on **RAI-väli**: aikajana edellisestä RAI-arvioinnista seuraavaan, jossa näkyvät arvioinnin jälkeen kertyneet merkinnät ja niistä havaitut muutokset.
-- Haku ja suodatus tilan, muutoksen aiheen ja palvelun mukaan. Ilmoituskellossa näkyvät tarkistamattomat muutokset.
+- **Tieto on hajallaan.** Ikääntyneen asiakkaan tiedot ovat terveysaseman käynneissä, diagnooseissa, lääkityksessä, laboratoriotuloksissa, käyntimuistiinpanoissa, kotihoidon käynneissä, palvelupäätöksissä ja suunnitelmissa. Ne ovat eri järjestelmissä ja eri ammattiryhmien kirjaamia.
+- **RAI-arviointi on lakisääteinen ja toistuva.** Ikääntyneiden palveluissa toimintakykyä arvioidaan RAI-välineellä. Seuranta-arviota varten arvioijan on selvitettävä, mikä on muuttunut edellisen arvioinnin tai palvelupäätöksen jälkeen.
+- **Esitietojen kokoaminen vie aikaa asiakastyöltä.** Kun tietoja etsitään käsin, muutos voi jäädä huomaamatta, esimerkiksi uusi kaatumistaipumus, lääkitysmuutos tai kotihoidon käyntimäärän kasvu.
+- **Kaikki eivät saa nähdä kaikkea.** Fysioterapeutti ei tarvitse laboratoriotuloksia, eikä sosiaalityöntekijä tarvitse diagnooseja. Esitietojen koonnin on noudatettava käyttötarkoitussidonnaisuutta.
 
-**Asiakas**
-- Arviointien välinen seuranta: iso RAI-väli. Pistettä napsauttamalla pääsee merkintään.
-- Tilannekuva, havaitut muutokset tärkeysjärjestyksessä (mitä muuttui, peruste, lähteet, huomioitavaa) ja ammattilaisen oma arvio.
-- *Valmistaudu kohtaamiseen*: tarkistettavat asiat.
-- Tapahtumat, kirjaukset ja painokäyrä RAI-lähtötasoon verrattuna. RAI-lähtötilanne mittareineen.
-- *Uusi kirjaus*: tilannekuva päivittyy heti, ja uusi muutos nostaa ilmoituksen.
+## Ratkaisu
 
-**Konsepti**: haaste, ratkaisu, toimintamalli, mitä Muutosvahti huomaa, hyödyt, omalääkärimalli ja monistettavuus.
-
-**Kysy Muutosvahdilta**: kelluva painike avaa tiimin Copilot Studio -agentin.
-
-## Demon käsikirjoitus (3–5 min)
-
-1. **Avaus (20 s):** Kirjautumissivu: "Entä jos ammattilaisen ei tarvitsisi itse etsiä asiakkaan muuttunutta tilannetta tuhansien tietojen joukosta?"
-2. **Kirjaudu Annana (40 s):** Ydinidea ja kooste: 5/7 asiakkaalla tarkistettavaa. Asiakaskorttien RAI-väli näyttää, missä kohtaa arviointiväliä muutokset syntyivät.
-3. **Aino (60 s):** Paino laskenut toistuvissa mittauksissa ja ruokahalu heikentynyt. Näytä lähteet, painokäyrä ja kohtaan valmistautuminen.
-4. **Kerttu (30 s):** Yksittäistä poikkeavaa punnitusta ei esitetä faktana. *Huomioi myös* -kohdassa näkyy, että punnitus tehtiin eri vaa'alla ja että asiakas syö hyvin.
-5. **Live (40 s):** Toivo (vihreä) → *Uusi kirjaus* → *Esimerkki* → *Tallenna*. Uusi muutos ja ilmoitus syntyvät heti.
-6. **Ammattilainen päättää (20 s):** Tallenna Ainon kohdalle arvio "RAI-arviointi aikaistetaan".
-7. **Omalääkärimalli (20 s):** Kirjaudu ulos ja sisään Leenana: omalääkäri näkee omat asiakkaansa.
-
-Ennen demoa: käyttäjävalikko → *Palauta demoaineisto*.
-
-## Testiskenaariot
-
-| Asiakas | Skenaario | Tulos |
-|---|---|---|
-| Toivo Nieminen | Normaali tapaus | Vihreä |
-| Lyyli Salo | Normaali, RAI-arvio erääntyy 7 vrk:n päästä | Vihreä + tiedoksi |
-| Aino Virtanen | Painon lasku 6,3 % + heikentynyt ruokahalu | Punainen |
-| Eino Mäkinen | 3 kaatumista, 2 päivystys- tai ensihoitokontaktia, lääkemuutos | Punainen |
-| Helmi Korhonen | MTP-kontaktit 0 → 4, matala mieliala, yksinäisyys | Punainen |
-| Väinö Heikkinen | Paino +2,7 kg 14 vrk:ssa, turvotus, avuntarve lisääntynyt | Punainen |
-| Kerttu Laine | Yksittäinen poikkeava punnitus + "syö hyvin" + muistihuomiot | Oranssi, epävarma |
-
-## Veil.AI-aineiston käyttö hackathonissa
-
-Aineisto julkaistaan 13.10. aamulla. Muunna valitut profiilit `data/mock-asiakkaat.json` -rakenteeseen ja tuo tiedosto
-käyttäjävalikon *Tuo aineisto (JSON)* -toiminnolla. Asiakkaan `vastuuhoitaja`- ja `omalaakari`-kenttä määräävät, kenelle asiakas näkyy.
-
-```json
-{
-  "viitepaiva": "2026-10-13",
-  "asiakkaat": [{
-    "id": "...", "nimi": "...", "ika": 84, "sukupuoli": "...", "palvelu": "Kotihoito",
-    "omalaakari": "Lääkäri Leena Demo", "vastuuhoitaja": "Anna Esimerkki",
-    "rai": { "pvm": "2026-05-12", "arvioija": "...", "mittarit": { "paino": 61.5, "ADLH": 1 },
-             "alue": { "ravitsemus": "..." }, "edeltavat90pv": { "paivystys": 0, "mtp": 0, "kaatumiset": 0 } },
-    "tapahtumat": [
-      { "id": "x1", "pvm": "2026-06-15", "tyyppi": "mittaus", "mittari": "paino", "arvo": 61.2, "lahde": "..." },
-      { "id": "x2", "pvm": "2026-08-12", "tyyppi": "kirjaus", "teksti": "...", "lahde": "..." },
-      { "id": "x3", "pvm": "2026-09-21", "tyyppi": "kontakti", "palvelu": "päivystys", "teksti": "...", "lahde": "..." },
-      { "id": "x4", "pvm": "2026-07-28", "tyyppi": "laakitys", "teksti": "...", "lahde": "..." }
-    ]
-  }]
-}
+```mermaid
+flowchart LR
+  A[Lähtötilanne<br/>palvelutarpeen arviointi<br/>ja palvelupäätös] --> B[Uutta tietoa kertyy<br/>käynnit, diagnoosit, lääkitys,<br/>laboratorio, kotihoito, päätökset]
+  B --> C[Rajaus roolin ja<br/>arviointitilanteen mukaan]
+  C --> D[19 sääntöä vertaavat<br/>lähtötilanteeseen<br/>10 RAI-osa-alueittain]
+  D --> E[Havainto: peruste,<br/>lähteet, vastanäyttö,<br/>varmuus]
+  E --> F[Ammattilainen arvioi<br/>ja kirjaa jatkotoimet]
+  F --> G[Kohtaaminen<br/>asiakkaan kanssa]
 ```
 
-Datan käyttöehdot: käyttö vain tapahtuman aikana, ei jakoa kolmansille, ja aineisto poistetaan tapahtuman jälkeen.
-Tyhjennä siksi tapahtuman jälkeen paikallinen muisti (käyttäjävalikko → *Tyhjennä paikallinen muisti*).
+1. **Rajaa tiedot.** Ammattilainen kirjautuu roolissaan ja valitsee arviointitilanteen. Agentti käsittelee vain ne tiedot, jotka roolin käyttöoikeudet ja tilanteen käyttötarkoitus sallivat.
+2. **Muodostaa lähtötilanteen.** Lähtötilanteena käytetään palvelutarpeen arviointia ja palvelupäätöstä. Hackathonin aineistossa ei ole RAI-mittareita, joten sen jälkeen kertyneet tiedot jäsennetään RAI-arvioinnin osa-alueisiin.
+3. **Tunnistaa muutokset.** Sääntöpohjainen agentti tunnistaa kielteiset muutokset, myönteiset muutokset ja seurattavat asiat.
+4. **Näyttää perustelut.** Jokaisesta havainnosta näkyy, mitä muuttui ja milloin, mihin sääntöön havainto perustuu ja mistä lähteestä se tulee. Lisäksi näkyy, mikä tieto puhuu havaintoa vastaan ja kuinka varma havainto on (selvä, kohtalainen tai epävarma). Alkuperäisen lähdetiedon voi avata.
+5. **Ammattilainen päättää.** Ammattilainen arvioi, pitääkö havainto paikkansa, onko se virhehälytys vai onko asia epäselvä. Sen jälkeen hän kirjaa jatkotoimet. Agentti ehdottaa tarkistettavia asioita ja rakenteisia kyselyjä (PHQ-9, GAD-7, AUDIT), mutta ei tee päätöksiä.
 
-## Palautuksessa ilmoitettava: valmiina tuotu vs. paikan päällä rakennettu
+## Keskeiset ominaisuudet
 
-Tuomaristo arvioi tapahtuman aikana syntyneen tuotoksen. Kirjaa siksi palautukseen erikseen, että tämä prototyyppi
-(mock-data, analyysi, käyttöliittymä) on tehty ennen tapahtumaa. Paikan päällä tehtävää on esimerkiksi Veil.AI-datan
-muuntaminen, muutosten tunnistuksen kalibrointi mentorien (sairaanhoitajat, RAI-osaajat) kanssa, Copilot Studio -agentin
-viimeistely ja pitch.
+| Ominaisuus | Kuvaus |
+|---|---|
+| **Koontinäkymä** | Omat asiakkaat järjestettynä muutosten määrän ja merkittävyyden mukaan. Värit kertovat vain tarkistamisen tarpeen, eivät asiakkaan riskiä. Mukana myös RAI-seuranta-arvion ajankohta ja myöhässä olevat arviot. |
+| **Esitietokooste** | Tilannekuva, havainnot tärkeysjärjestyksessä ja kymmenen RAI-osa-aluetta (lähtötilanne vs. sen jälkeen). Osio *Valmistaudu kohtaamiseen* listaa tarkistettavat asiat. |
+| **Roolikohtainen painotus** | RAI-seuranta-arviossa roolin keskeiset osa-alueet näytetään ensin ja muut erikseen avattavina. Painotus ei laajenna käyttöoikeuksia. |
+| **Kaaviot** | Terveysaseman käynnit (kiireellisyys), kotihoidon käynnit, laboratoriotulokset ja säännöllinen lääkitys aikajanana, kukin lähtötilanteeseen verrattuna. Kaavio näkyy vain, jos rooli saa nähdä sen tiedot. |
+| **Lähteen avaus** | Jokaisen havainnon alkuperäinen lähdetieto, kuten käyntimuistiinpano, diagnoosi tai lääkemuutos, aukeaa yhdellä napsautuksella. |
+| **Ammattilaisen arvio ja jatkotoimet** | Arvio (pitää paikkansa / virhehälytys / epäselvä) ja jatkotoimet tallentuvat tekijän, roolin ja tilanteen kanssa. |
+| **Rakenteiset kyselyt** | PHQ-9, GAD-7 ja AUDIT täytettävinä lomakkeina pisteytyksineen, kun ne kuuluvat roolin käyttötarkoitukseen. |
+| **Säännöt ja laatu** | Kaikki 19 sääntöä perusteineen, käytettyine tietoineen ja tunnettuine rajoitteineen. Lisäksi sääntökohtainen virhehälytysaste ammattilaisten arvioista ja vinoumien arviointi. |
+| **Käyttötarkoitus ja tietosuoja** | RBAC-matriisi, mitä ratkaisu ei tee, ihmisen valvonta, alustava sääntelyluokittelu ja tietojen minimointi. |
+| **Käyttöloki** | Kuka avasi minkä asiakkaan, missä roolissa ja tilanteessa ja mitä teki. |
+| **Tekoälyagentti RAI 007** | Copilot Studio -agentti upotettuna sovellukseen. Agentti vastaa roolin mukaisesti vain tietopohjansa perusteella, ja paneelissa kerrotaan, että käyttäjä keskustelee tekoälyn kanssa. |
+| **Työpöytäsovellus ja mobiili** | Asennettava työpöytäsovellus (oma ikkuna ja kuvake) ja responsiivinen mobiilinäkymä. Vaalea ja tumma teema. Saavutettavuus: näppäimistökäyttö, ruudunlukijatekstit, värin lisäksi muodot. |
+
+## Roolit ja käyttötarkoitussidonnaisuus
+
+| Rooli | Arviointitilanteet | Painotetut RAI-osa-alueet | Ei näe |
+|---|---|---|---|
+| **Sairaanhoitaja** (kotihoito, RAI-arvioija) | RAI-seuranta-arvio, lääkehoidon arviointi | Kaikki osa-alueet | Asiakkaita, joihin ei ole hoitosuhdetta |
+| **Lääkäri** | Lääkärin vastaanotto, lääkehoidon arviointi, RAI-seuranta-arvio | Terveydentila ja lääkitys, mieliala, kognitio, kipu, liikkuminen, palvelujen käyttö | Sosiaalihuollon päätös- ja suunnitelmatekstejä |
+| **Fysioterapeutti** | RAI-seuranta-arvio | Arjessa selviytyminen, liikkuminen ja kaatumiset, kipu | Lääkitystä, laboratoriota, päätöstekstejä, kyselyjä |
+| **Sosiaalityöntekijä** | RAI-seuranta-arvio, palvelutarpeen arviointi | Arki, liikkuminen, kognitio, kommunikointi, sosiaalinen osallistuminen, palvelut | Diagnooseja, lääkitystä, laboratoriota, kyselyjä |
+
+Arviointitilanne voi rajata tietoja vielä roolia tarkemmin. Esimerkiksi lääkehoidon arvioinnissa sosiaalihuollon tekstit eivät ole mukana.
+
+**RAI-osa-alueet:** arjessa selviytyminen ja avuntarve · liikkuminen ja kaatumiset · kognitio · kommunikointi ja aistit · mieliala ja uni · sosiaalinen osallistuminen ja elintavat · kipu · ravitsemus · terveydentila ja lääkitys · palvelujen käyttö.
+
+**Säännöt (19):** kaatumistaipumus, tapaturmat ja vammat, huimaus, mielialakirjaukset, univaikeudet, kipukäynnit, toimintakyvyn kuvaus käyntimuistiinpanossa, kiireelliset käynnit, lääkitysmuutokset, laboratoriotulosten muutos, kuulo, kotihoidon käyntimäärän muutos, palveluprosessin muutos. Myönteiset muutokset: kiireelliset käynnit vähentyneet, ei kaatumis- tai vammakirjauksia, ei uusia mielialakirjauksia, laboratoriotulos kohentunut. Lisäksi RAI-seuranta-arvion ajankohta.
+
+## Luotettavuus, turvallisuus ja sääntely
+
+### Mitä ratkaisu ei tee
+
+- Ei tee RAI-arviointia eikä muuta RAI-tuloksia.
+- Ei tee diagnooseja, hoitopäätöksiä eikä palvelupäätöksiä.
+- Ei pisteytä asiakkaan riskiä eikä luokittele asiakkaita.
+
+### Läpinäkyvyys ja ihmisen valvonta
+
+- Muutosten tunnistus on sääntöpohjaista. Se ei käytä koneoppimismallia eikä kielimallia eikä opi asiakastiedoista, joten jokainen havainto on toistettavissa ja jäljitettävissä.
+- Jokaisella havainnolla on peruste, lähde, vastanäyttö ja varmuus. Ammattilainen arvioi jokaisen havainnon, ja sääntökohtainen virhehälytysaste näkyy *Säännöt ja laatu* -näkymässä. Raja-arvot kalibroidaan ammattilaisten kanssa.
+- Vinoumat on arvioitu. Ikä, sukupuoli, kieli tai kotikunta eivät ole minkään säännön syötteenä, vaan asiakasta verrataan vain hänen omaan lähtötilanteeseensa. Tunnetut rajoitteet, kuten aliedustus ja ruotsinkieliset kirjaukset, on kirjattu.
+- Tekoälyagentin paneelissa kerrotaan, että käyttäjä keskustelee tekoälyn eikä ihmisen kanssa (tekoälysäädös, art. 50).
+
+### Sääntely (alustava arvio, vahvistetaan juristin ja tietosuojavastaavan kanssa)
+
+- **EU:n tekoälysäädös:** järjestelmä käsitellään suuren riskin järjestelmänä (liite III), koska se tukee julkisten palvelujen tarpeen arviointia sote-tiedoilla.
+- **MDR:** käyttötarkoitus rajaa pois diagnoosit ja hoitopäätökset, mikä puoltaa sitä, ettei kyse ole lääkinnällisestä laitteesta.
+- **Tietosuoja:** hyvinvointialue on rekisterinpitäjä ja toimittaja käsittelijä. Käsittelyperuste on tietosuoja-asetuksen art. 6(1)(e) ja 9(2)(h), ja vaikutustenarviointi (DPIA) on pakollinen. Käyttöoikeudet määräytyvät hoitosuhteen perusteella, käytöstä jää loki, tiedot salataan ja käsitellään EU:ssa. Oikean aineiston käyttö kehitykseen edellyttää Findatan lupaa.
+- **Tietojen minimointi demossa:** terveystiedot otetaan vain lähtötilannetta edeltävältä vuodelta ja sen jälkeen. Kotihoidon käynnit ovat kuukausitasolla. Henkilötunnuksia, nimiä tai lomakkeiden laatijatietoja ei ole.
+
+## Hyödyt
+
+| Kenelle | Hyöty |
+|---|---|
+| **Ammattilainen** | Esitiedot valmiina RAI-osa-alueittain ennen arviointia tai vastaanottoa. Olennaiset muutokset ovat ensin, ja lähde aukeaa yhdellä napsautuksella. Enemmän aikaa asiakkaan kohtaamiseen. |
+| **Asiakas** | Muutos huomataan ennen seuraavaa määräaikaista arviointia, ja asiakkaan oma kokemus kysytään kohtaamisessa. |
+| **Hyvinvointialue** | Yhtenäinen ja jäljitettävä esitietojen koonti eri ammattiryhmille, käyttötarkoitussidonnaisuus sisäänrakennettuna, myöhässä olevat RAI-seuranta-arviot näkyvissä ja laadunseuranta virhehälytysten kautta. |
+
+## Liiketoiminta ja jatkokehitys
+
+- **Markkina:** RAI-arviointia käytetään ikääntyneiden palveluissa koko maassa, joten jokainen hyvinvointialue on potentiaalinen asiakas. Ratkaisu ei ole sidottu yhteen potilastietojärjestelmään.
+- **Malli (ehdotus):** palvelu hyvinvointialueelle lisenssinä (SaaS), esimerkiksi käyttäjä- tai asiakasmäärän mukaan. Tuotannossa käsittely EU:ssa hyvinvointialueen ympäristössä.
+- **Monistettavuus:** säännöt, roolit ja arviointitilanteet ovat erillistä konfiguraatiota (`js/agent.js`). Uuden roolin, kuten toimintaterapeutin, tai uuden tilanteen voi lisätä muuttamatta käyttöliittymää.
+
+### Tiekartta
+
+1. Raja-arvojen kalibrointi sairaanhoitajien, lääkäreiden ja RAI-osaajien kanssa sekä virhehälytysten mittaus pilotissa.
+2. Integraatio potilas- ja asiakastietojärjestelmiin ja Kanta-palveluihin standardirajapinnoilla (esim. FHIR) ja RAI-mittareiden käyttö lähtötilanteena.
+3. Tunnistus Entra ID:llä, palvelinpuolen käyttöoikeudet ja lokitus, ei potilastietoa selaimessa.
+4. Ruotsinkielisten kirjausten tuki ja lisää rooleja.
+5. Vaatimustenmukaisuus: DPIA, tekoälysäädöksen suuren riskin velvoitteet ja MDR-arvion vahvistus.
+
+---
+
+## Tekninen toteutus
+
+| Osa | Teknologia |
+|---|---|
+| **Käyttöliittymä** | HTML, CSS ja JavaScript ilman kehyksiä, riippuvuuksia tai build-vaihetta. Kaaviot SVG:nä omalla koodilla. Responsiivinen, vaalea ja tumma teema. |
+| **Agentti (muutosten tunnistus)** | Sääntöpohjainen JavaScript-moduuli `js/agent.js`: rooli- ja tilannekohtainen rajaus (RBAC), 10 RAI-osa-aluetta, 19 sääntöä, sääntöversio `luvn-2026.10`. |
+| **Tekoälyagentti** | Microsoft Copilot Studio -agentti **RAI 007** upotettuna verkkokeskusteluna. Tietopohja (Word, PDF ja Markdown) generoidaan sovelluksen omalla agentilla, joten agentin vastaukset vastaavat sovelluksen roolinäkymiä. |
+| **Aineistoputki** | PowerShell 5.1 (`tools/rakenna-aineisto.ps1`): hackathonin aineisto → `js/data.js` ja `data/aineisto.json`, tietojen minimointi samalla. Node.js- ja PowerShell-skriptit Copilot-tietopohjan rakentamiseen. |
+| **Kirjautuminen (demo)** | Salasanat suolattuina SHA-256-tiivisteinä (Web Crypto). Kirjautuminen lukittuu viiden virheellisen yrityksen jälkeen. Istunto ja arviot tallennetaan selaimen paikalliseen muistiin. |
+| **Työpöytäsovellus** | Microsoft Edgen sovellustila: oma ikkuna, oma kuvake, ei osoiteriviä, ei asennettavia ohjelmia. |
+| **Ajoympäristö** | Mikä tahansa moderni selain. Toimii ilman verkkoyhteyttä; vain RAI 007 -agentti tarvitsee verkon. |
+
+```mermaid
+flowchart LR
+  H[(hackathon_data<br/>synteettinen VEIL-aineisto)] -->|rakenna-aineisto.ps1| D[js/data.js]
+  D --> A[js/agent.js<br/>rajaus + 19 sääntöä]
+  A --> U[js/app.js<br/>käyttöliittymä]
+  A -->|rakenna-copilot-*.js / .ps1| K[Copilot-tietopohja<br/>Word / PDF / MD]
+  K --> C[RAI 007<br/>Copilot Studio]
+  C -->|upotettu keskustelu| U
+```
+
+### Projektin rakenne
+
+| Polku | Sisältö |
+|---|---|
+| `index.html` | Etusivu ja roolikohtainen kirjautuminen |
+| `login.html` | Kirjautuminen ja sovellus |
+| `js/agent.js` | Sääntöpohjainen agentti: roolit, tilanteet, RAI-osa-alueet, säännöt |
+| `js/app.js` | Käyttöliittymä: koontinäkymä, esitietokooste, kaaviot, arviot, lomakkeet, säännöt ja laatu, tietosuoja, loki, tekoälyagentti |
+| `js/asetukset.js` | Tekoälyagentin nimi ja upotusosoite |
+| `js/data.js`, `data/aineisto.json` | Sovelluksen aineisto (generoitu) |
+| `css/styles.css` | Ulkoasu, teemat, mobiili |
+| `agent/` | RAI 007 -agentin ohjeet Copilot Studioon |
+| `data/copilot-*` | RAI 007 -agentin tietopohja (koko aineisto, roolikohtaiset ja asiakaskohtaiset tiedostot) |
+| `new_data/roolit/` | Roolien ja arviointitilanteiden kuvaukset, joihin roolipainotus perustuu |
+| `tools/` | Aineiston ja Copilot-tietopohjan rakentaminen, työpöytäsovelluksen asennus |
+
+---
+
+## Kokeile
+
+**Selaimessa:** avaa `index.html`. Ei asennuksia eikä build-vaihetta.
+
+**Sovellustilassa:** `kaynnista-sovellustilassa.cmd` avaa demon Edgessä omaan ikkunaansa.
+
+**Työpöytäsovelluksena:** kaksoisnapsauta `asenna-tyopoytasovellus.cmd`. Se luo työpöydälle ja Käynnistä-valikkoon kuvakkeen **RAI Muutosvahti**. Jos projektikansio siirretään, aja asennus uudelleen. Poisto: `asenna-tyopoytasovellus.cmd -Poista`.
+
+**Demotunnukset** (salasana kaikille `Muutosvahti2026`, tai valitse rooli etusivulta):
+
+| Tunnus | Rooli | Hoitosuhde |
+|---|---|---|
+| `sanna` | Sairaanhoitaja, kotihoito | 11 kotihoidon asiakasta |
+| `lauri` | Lääkäri | kaikki 14 |
+| `fiia` | Fysioterapeutti | kaikki 14 |
+| `sofia` | Sosiaalityöntekijä | kaikki 14 |
+
+### Demon kulku (3–5 min)
+
+1. **Sairaanhoitaja (`sanna`)** → koontinäkymä: asiakkaat muutosten mukaan järjestettynä.
+2. **Asiakas 9422:** kaatumistaipumus kirjattu lähtötilanteen jälkeen, kaatumisen pelko rajoittaa liikkumista, kotihoito päättynyt 31.5.2026 → avaa lähde (käyntimuistiinpano) → arvioi havainto ja kirjaa jatkotoimet.
+3. **Lääkäri (`lauri`)** → **Asiakas 3245:** uusi ahdistuneisuuskirjaus ja essitalopraami → täytä GAD-7.
+4. **Sosiaalityöntekijä (`sofia`)** samaan asiakkaaseen: diagnoosit ja lääkitys on rajattu pois, näkyvissä palveluprosessi ja toimintakyky.
+5. **Säännöt ja laatu** ja **Loki:** jokaisella havainnolla on peruste, ja jokainen toimenpide jää lokiin.
+6. **RAI 007:** kysy agentilta saman asiakkaan tilanteesta roolisi näkökulmasta.
+
+---
+
+## Aineisto
+
+Sovellus käyttää vain hackathonin synteettistä aineistoa (`hackathon_data`):
+
+- **LUVN_synteettinenData_VEIL (2024–2026):** 14 ikääntyneiden palvelujen asiakasta, joilla on myönteinen kotihoito- tai palveluasumispäätös sekä sosiaali- että terveystietoja. Tiedot kattavat käynnit, diagnoosit, lääkityksen, laboratoriotulokset, käyntimuistiinpanot, vireilletulot, päätökset, palvelut, kotihoidon käynnit ja suunnitelman.
+- **Esitietolomakkeet:** PHQ-9, GAD-7 ja AUDIT (kysymykset ja pisteet aineistosta).
+
+Viitepäivä on 13.10.2026, ja sitä myöhemmät tiedot jätetään pois. Aineiston rakentaminen: `.\tools\rakenna-aineisto.ps1` (PowerShell 5.1). Valittavissa olevat asiakkaat saa listattua valitsimella `-Ehdokkaat`.
+
+## Demo vs. tuotanto
+
+Tämä on hackathon-prototyyppi. Kirjautuminen on selainpohjainen simulaatio eikä oikea tunnistus, ja tiedot tallennetaan selaimen paikalliseen muistiin. Tuotannossa tunnistus tehdään hyvinvointialueen Entra ID:llä, käyttöoikeudet ja tiedot ovat palvelimella, eikä potilastietoa tallenneta selaimeen.
