@@ -17,6 +17,8 @@ Aineistossa ei ole RAI-mittareita. **Lähtötilanteena** käytetään palvelutar
 
 **Käynnistys:** avaa `index.html` (etusivu) tai suoraan `login.html` (kirjautuminen ja sovellus), tai `kaynnista-sovellustilassa.cmd` (Edgen sovellustila). Toimii ilman verkkoyhteyttä.
 
+**Työpöytäsovellus:** kaksoisnapsauta `asenna-tyopoytasovellus.cmd`. Se luo työpöydälle ja Käynnistä-valikkoon kuvakkeen **RAI Muutosvahti** (`rai-muutosvahti.ico`), joka avaa sovelluksen omaan ikkunaansa ilman osoiteriviä. Ei asennettavia ohjelmia (käyttää Edgeä). Jos projektikansio siirretään, aja asennus uudelleen. Poisto: `asenna-tyopoytasovellus.cmd -Poista`.
+
 | Tunnus | Rooli | Arviointitilanteet | Hoitosuhde |
 |---|---|---|---|
 | `sanna` | Sairaanhoitaja, kotihoito | RAI-seuranta-arvio, Lääkehoidon arviointi | 11 kotihoidon asiakasta |

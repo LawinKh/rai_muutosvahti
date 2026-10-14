@@ -744,17 +744,29 @@
     },
     {
       id: "MIELIALA_EI", alue: "mieliala", nimi: "Ei uusia mielialakirjauksia", suunta: "myonteinen",
-      peruste: "Masennus- tai ahdistuneisuusdiagnoosi kirjattu lähtötilannetta edeltäneen 12 kk:n aikana, mutta ei lähtötilanteen jälkeen, eikä uutta mielialalääkettä ole aloitettu (seurantaa vähintään 120 vrk) → myönteinen muutos, varmuus epävarma.",
+      peruste: "Masennus- tai ahdistuneisuusdiagnoosi kirjattu lähtötilannetta edeltäneen 12 kk:n aikana, mutta ei lähtötilanteen jälkeen, eikä uutta mielialalääkettä ole aloitettu (seurantaa vähintään 120 vrk) → myönteinen muutos, varmuus epävarma. Jos mielialalääkitys on edelleen käytössä → seurattava.",
       tiedot: "Diagnoosit, lääkitys",
-      rajoitteet: "Diagnoosin puuttuminen ei kerro oireiden poistumisesta.",
+      rajoitteet: "Diagnoosin puuttuminen ei kerro oireiden poistumisesta. Jatkuva mielialalääkitys viittaa siihen, että mielialaa hoidetaan edelleen.",
       aja(ctx, aiemmat) {
         if (ctx.jaksoPv < 120 || aiemmat.some((s) => s.saanto === "MIELIALA")) return null;
         const e = ctx.dxE.filter((d) => onMieliala(d.k));
         if (!e.length || ctx.dxJ.some((d) => onMieliala(d.k))) return null;
+        const jatkuu = [...laakemuutokset(ctx).nyt.values()].filter((l) => MIELIALALAAKE.test(l.atc));
+        const dx = ainutlaatuiset(e.map((d) => dxTeksti(d.k))).join("; ");
+        if (jatkuu.length) return {
+          taso: "seurattava", varmuus: "epävarma",
+          otsikko: "Mielialalääkitys jatkuu – ei uusia mielialakirjauksia",
+          mitaMuuttui: `Ennen lähtötilannetta kirjattu ${dx}. Lähtötilanteen jälkeen ei uusia mielialadiagnooseja, mutta mielialalääke on edelleen käytössä: ${jatkuu.map((l) => l.aine).join(", ")}.`,
+          perustelu: "Uusien kirjausten puuttuminen ei ole myönteinen muutos, kun mielialaa hoidetaan edelleen lääkkeellä – tilannetta kannattaa seurata.",
+          havaittu: ctx.viite,
+          lahteet: [...e.map(dxOte), ...jatkuu.map((l) => ote(l.id, `Käytössä: ${l.aine} (${l.atc})`))],
+          vastanaytto: [],
+          tarkistettavat: ["Asiakkaan oma kokemus mielialasta.", "Lääkityksen vaikutus ja tarve – lääkärin arvio."], ehdotukset: []
+        };
         return {
           taso: "myonteinen", varmuus: "epävarma",
           otsikko: "Ei uusia mielialaan liittyviä kirjauksia",
-          mitaMuuttui: `Ennen lähtötilannetta kirjattu ${ainutlaatuiset(e.map((d) => dxTeksti(d.k))).join("; ")}. Lähtötilanteen jälkeen ei vastaavia kirjauksia eikä uutta mielialalääkettä.`,
+          mitaMuuttui: `Ennen lähtötilannetta kirjattu ${dx}. Lähtötilanteen jälkeen ei vastaavia kirjauksia eikä uutta mielialalääkettä.`,
           perustelu: "Voi kertoa voinnin vakiintumisesta – asiakkaan oma kokemus ratkaisee.",
           havaittu: ctx.viite, lahteet: e.map(dxOte), vastanaytto: [],
           tarkistettavat: ["Asiakkaan oma kokemus mielialasta."], ehdotukset: []

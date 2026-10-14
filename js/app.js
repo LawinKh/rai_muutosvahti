@@ -19,10 +19,10 @@
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
   const root = $("#root");
 
-  // Copilot Studio -agentin osoite ja nimi: js/asetukset.js
+  // Tekoälyagentin osoite ja nimi: js/asetukset.js
   const ASETUKSET = window.RAI_ASETUKSET || {};
   const COPILOT_URL = ASETUKSET.copilotUrl || "";
-  const COPILOT_NIMI = ASETUKSET.copilotNimi || "Copilot Studio";
+  const COPILOT_NIMI = ASETUKSET.copilotNimi || "RAI 007";
 
   /* =====================================================================
    * PAIKALLINEN TALLENNUS (ei asiakasaineistoa)
@@ -366,20 +366,12 @@
       <button class="fab" id="fab" type="button" aria-expanded="false" aria-controls="chat">${SVG.chat}<span>Kysy ${esc(COPILOT_NIMI)}</span></button>
       <section class="chat" id="chat" role="dialog" aria-modal="false" aria-labelledby="chatTitle" aria-describedby="chatDesc" hidden>
         <div class="chat__head">
-          <div><strong id="chatTitle">Muutosvahdin avustaja</strong><span class="sr" id="chatDesc">Tekoälyavustaja. Sulje Esc-näppäimellä.</span><span>Tekoälyavustaja · ei tee päätöksiä</span></div>
+          <div><strong id="chatTitle">${esc(COPILOT_NIMI)}</strong><span class="sr" id="chatDesc">Tekoälyagentti. Sulje Esc-näppäimellä.</span><span>Tekoälyagentti · ei tee päätöksiä</span></div>
           <button type="button" id="chatClose" aria-label="Sulje">×</button>
         </div>
-        <div class="chat__tabs seg" role="group" aria-label="Avustajan valinta">
-          <button type="button" data-chattab="paikallinen" aria-pressed="true">Paikallinen avustaja</button>
-          <button type="button" data-chattab="copilot" aria-pressed="false">${esc(COPILOT_NIMI)} (Copilot Studio)</button>
-        </div>
-        <div class="chat__body" id="chatLocal">
-          <div class="chat__log" id="chatLog" aria-live="polite"></div>
-          <div class="chat__chips" id="chatChips"></div>
-          <form class="chat__form" id="chatForm"><input id="chatInput" autocomplete="off" placeholder="Kysy esim. ”mikä on muuttunut?”" aria-label="Kysymys"><button class="btn btn--primary btn--small" type="submit">Lähetä</button></form>
-        </div>
-        <div class="chat__body" id="chatCopilot" hidden>
-          <p class="small muted chat__note" id="copilotNote">${COPILOT_URL ? `${esc(COPILOT_NIMI)} latautuu Copilot Studiosta (vaatii verkkoyhteyden). Jos ikkuna jää tyhjäksi, <a href="${esc(COPILOT_URL)}" target="_blank" rel="noopener">avaa agentti omaan välilehteen</a>.` : "Copilot Studio -agentin osoitetta ei ole asetettu (js/asetukset.js)."}</p>
+        <div class="chat__body" id="chatAgentti">
+          <p class="chat__disclaimer" role="note"><strong>Keskustelet tekoälyagentin kanssa, et ihmisen.</strong> Agentin vastaukset voivat olla virheellisiä tai puutteellisia, eivätkä ne korvaa ammattilaisen arviota. Agentti ei tee diagnooseja eikä päätöksiä – tarkista tiedot lähteistä. Älä kirjoita oikeita henkilötietoja.</p>
+          <p class="small muted chat__note">${COPILOT_URL ? `Agentti vaatii verkkoyhteyden. Jos ikkuna jää tyhjäksi, <a href="${esc(COPILOT_URL)}" target="_blank" rel="noopener">avaa agentti omaan välilehteen</a>.` : "Agentin osoitetta ei ole asetettu (js/asetukset.js)."}</p>
         </div>
       </section>
       <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
@@ -391,17 +383,6 @@
     $("#userBtn").addEventListener("click", (e) => { e.stopPropagation(); const auki = $("#menu").hidden; suljePopoverit(); if (auki) piirraValikko(); $("#menu").hidden = !auki; $("#userBtn").setAttribute("aria-expanded", String(auki)); });
     $("#fab").addEventListener("click", () => avaaChat(!$("#chat").hidden ? false : true));
     $("#chatClose").addEventListener("click", () => avaaChat(false));
-    $$("[data-chattab]").forEach((b) => b.addEventListener("click", () => {
-      $$("[data-chattab]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      $("#chatLocal").hidden = b.dataset.chattab !== "paikallinen";
-      $("#chatCopilot").hidden = b.dataset.chattab !== "copilot";
-      // agentti ladataan ensimmäisellä avauskerralla ja pidetään auki (keskustelu säilyy välilehteä vaihdettaessa)
-      if (b.dataset.chattab === "copilot" && COPILOT_URL && !$("#chatCopilot iframe")) {
-        $("#chatCopilot").insertAdjacentHTML("beforeend", `<iframe src="${esc(COPILOT_URL)}" title="${esc(COPILOT_NIMI)} – Copilot Studio -agentti" allow="clipboard-write; microphone"></iframe>`);
-        lokiin({ asiakas: "–", toimenpide: `${COPILOT_NIMI}-agentti avattu` });
-      }
-    }));
-    $("#chatForm").addEventListener("submit", (e) => { e.preventDefault(); const q = $("#chatInput").value.trim(); if (q) { $("#chatInput").value = ""; kysy(q); } });
     $("#modalClose").addEventListener("click", suljeModal);
     $("#modal").addEventListener("click", (e) => { if (e.target.id === "modal") suljeModal(); });
 
@@ -415,7 +396,6 @@
         if ($("#chat")) avaaChat(false);
       });
     }
-    chatAloitus();
     reitti();
   }
 
@@ -496,7 +476,6 @@
     else if (osat[0] === "loki") { nav("loki"); document.title = "Käyttöloki – RAI Muutosvahti"; nakymaLoki(app); }
     else { nav("koti"); document.title = "Omat asiakkaat – RAI Muutosvahti"; nakymaKoti(app); }
     paivitaYlapalkki();
-    paivitaChatChipit();
   }
   window.addEventListener("hashchange", () => {
     if (!S.kayttaja) return;
@@ -1350,7 +1329,7 @@
     tausta().forEach((el) => el.removeAttribute("inert"));
     modalPaluu?.focus?.();
   }
-  // Tab pysyy avoimen dialogin sisällä (modaali ja avustaja)
+  // Tab pysyy avoimen dialogin sisällä (modaali ja tekoälyagentti)
   const KOHDISTETTAVAT = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, iframe, [tabindex]:not([tabindex="-1"])';
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Tab") return;
@@ -1447,7 +1426,7 @@
             <li>Jokainen havainto näytetään perusteluineen, ajankohtineen ja lähteineen. Alkuperäinen lähdetieto voidaan avata.</li>
             <li>Ammattilainen arvioi jokaisen havainnon (pitää paikkansa / virhehälytys / epäselvä) ja kirjaa jatkotoimet.</li>
             <li>Rakenteiset kyselyt (PHQ-9, GAD-7, AUDIT) ovat ehdotuksia – ammattilainen päättää käytöstä ja tulkitsee tuloksen.</li>
-            <li>Avustaja kertoo olevansa tekoäly (tekoälysäädös, art. 50).</li>
+            <li>Tekoälyagentin paneelissa kerrotaan, että käyttäjä keskustelee tekoälyn eikä ihmisen kanssa (tekoälysäädös, art. 50).</li>
           </ul>
         </section>
       </div>
@@ -1517,81 +1496,20 @@
   }
 
   /* =====================================================================
-   * PAIKALLINEN AVUSTAJA (sääntöpohjainen, kertoo olevansa tekoäly)
+   * TEKOÄLYAGENTTI (upotettu keskusteluikkuna, kertoo olevansa tekoäly)
    * ===================================================================== */
   function avaaChat(auki) {
     const oli = !$("#chat").hidden;
     $("#chat").hidden = !auki;
     $("#fab").setAttribute("aria-expanded", String(auki));
-    if (auki) { paivitaChatChipit(); setTimeout(() => $("#chatInput")?.focus(), 30); }
-    else if (oli) $("#fab").focus();
-  }
-  function chatViesti(kuka, html) {
-    const el = document.createElement("div");
-    el.className = "msg msg--" + kuka;
-    el.innerHTML = html;
-    $("#chatLog").appendChild(el);
-    $("#chatLog").scrollTop = $("#chatLog").scrollHeight;
-  }
-  function chatAloitus() {
-    $("#chatLog").innerHTML = "";
-    chatViesti("bot", `<strong>Hei! Olen tekoälyavustaja.</strong> Olen sääntöpohjainen ja toimin paikallisesti – en ole ihminen enkä kielimalli. Vastaan vain sinulle näkyvien tietojen perusteella. En tee diagnooseja, RAI-arviointia enkä päätöksiä; sinä arvioit ja päätät.`);
-  }
-  function paivitaChatChipit() {
-    const el = $("#chatChips");
-    if (!el) return;
-    const q = S.asiakasId
-      ? ["Mikä on muuttunut?", "Mihin havainnot perustuvat?", "Mitä kannattaa tarkistaa?", "Lääkitys", "Kaatumiset", "Miksi en näe kaikkea?"]
-      : ["Ketkä tarkistan ensin?", "Montako havaintoa on arvioimatta?", "Miten säännöt toimivat?", "Oletko tekoäly?"];
-    el.innerHTML = q.map((x) => `<button type="button" class="chip chip--btn">${esc(x)}</button>`).join("");
-    $$("button", el).forEach((b) => b.addEventListener("click", () => kysy(b.textContent)));
-  }
-  function kysy(q) {
-    chatViesti("user", esc(q));
-    const vastaus = vastaa(q.toLowerCase());
-    setTimeout(() => chatViesti("bot", vastaus + `<span class="msg__foot">Tekoälyavustaja · tarkista tiedot lähteistä</span>`), 180);
-    lokiin({ asiakas: S.asiakasId ? nimi(asiakas(S.asiakasId)) : "–", toimenpide: "Avustajaa käytetty" });
-  }
-  function vastaa(q) {
-    const an = S.asiakasId ? analyysi(S.asiakasId) : null;
-    const lista = (arr) => `<ul>${arr.map((x) => `<li>${x}</li>`).join("")}</ul>`;
-    if (/tekoäly|ihminen|kuka olet|botti|oletko/.test(q)) return "Olen tekoälyavustaja (sääntöpohjainen). En ole ihminen. Vastaukseni muodostetaan näkyvissä olevista tiedoista ennalta määritellyillä säännöillä, eivätkä ne korvaa ammattilaisen arviota.";
-    if (/diagnoos|sairast|hoito-ohje|annos|päätä|myönn/.test(q)) return "En tee diagnooseja, hoitopäätöksiä tai palvelupäätöksiä. Voin koota tiedot ja kertoa, mihin havainnot perustuvat – tulkinta ja päätökset kuuluvat ammattilaiselle.";
-    if (/sääntö|miten toimi|toimitko|peruste.*sään/.test(q)) return `Vertaan lähtötilanteen (palvelutarpeen arviointi ja palvelupäätös) jälkeen kertynyttä tietoa lähtötilanteeseen ${A.SAANNOT.length} säännöllä. Jokaisella havainnolla on sääntö, lähteet, ajankohta ja varmuus. Säännöt löytyvät sivulta <a href="#/saannot">Säännöt ja laatu</a>.`;
-    if (!an) {
-      const rivit = omatAnalyysit();
-      if (/ensin|kiire|tärke|ketkä|kenet/.test(q)) {
-        const pun = rivit.filter((r) => r.an.tila === "punainen");
-        return pun.length ? `Merkittävä kielteinen muutos lähtötilanteeseen nähden ${pun.length} asiakkaalla (tilanne: ${esc(A.TILANTEET[S.tilanne].nimi)}):${lista(pun.map(({ a, an: x }) => `<a href="#/asiakas/${esc(a.id)}">${esc(nimi(a))}</a>: ${esc(x.signaalit[0].otsikko)}`))}Järjestys ei ole riskiluokitus.` : "Kenelläkään omista asiakkaistasi ei ole sääntöjen mukaan merkittävää muutosta.";
+    if (auki) {
+      // agentti ladataan ensimmäisellä avauskerralla ja pidetään auki (keskustelu säilyy, kun paneeli suljetaan)
+      if (COPILOT_URL && !$("#chatAgentti iframe")) {
+        $("#chatAgentti").insertAdjacentHTML("beforeend", `<iframe src="${esc(COPILOT_URL)}" title="${esc(COPILOT_NIMI)} – tekoälyagentti" allow="clipboard-write; microphone"></iframe>`);
+        lokiin({ asiakas: "–", toimenpide: `${COPILOT_NIMI}-agentti avattu` });
       }
-      if (/arvioimatta|montako|kuinka monta/.test(q)) { const n = avoimetSignaalit().length; return `${n} havaintoa on vielä arvioimatta omissa asiakkaissasi.`; }
-      return "Avaa asiakkaan esitietokooste, niin voin kertoa hänen tiedoistaan. Koontinäkymässä voit kysyä esim. ”Ketkä tarkistan ensin?”.";
-    }
-    const a = asiakas(S.asiakasId);
-    const sig = an.signaalit.filter((s) => s.taso !== "tiedoksi");
-    const loyda = (re) => an.signaalit.filter((s) => re.test(s.saanto) || re.test(s.otsikko.toLowerCase()));
-    const sigTeksti = (s) => `<strong>${esc(s.otsikko)}</strong> (${esc(PITKA[TASO_TILA[s.taso]].toLowerCase())}, varmuus ${esc(s.varmuus)}): ${esc(s.mitaMuuttui)}`;
-    if (/muuttu|muutos|tilanne|yhteenveto|kooste/.test(q)) return sig.length ? `${esc(nimi(a))}: ${lista(sig.map(sigTeksti))}` : `${esc(nimi(a))}: sääntöjen mukaan ei tarkistettavia muutoksia lähtötilanteeseen nähden. Tämä ei tarkoita, ettei muutosta olisi – vain, ettei sitä näy käytettävissä olevissa tiedoissa.`;
-    if (/perustu|lähte|mistä|miksi/.test(q) && !/en näe|näe kaikk/.test(q)) return sig.length ? lista(sig.map((s) => `<strong>${esc(s.otsikko)}</strong>: ${s.lahteet.map((l) => `${fmtPvm(an.lahteet[l.id].pvm)} ${esc(an.lahteet[l.id].jarj.split(" · ")[1])} – ${esc(l.ote)}`).join("; ")}`)) + "Voit avata jokaisen lähteen havainnon kohdalta." : "Ei havaintoja, joiden lähteitä näyttää.";
-    if (/tarkist|valmistau|kysy/.test(q)) return an.tarkistettavat.length ? `Ehdotan tarkistettavaksi:${lista(an.tarkistettavat.map(esc))}` : "Ei erityisiä tarkistettavia asioita.";
-    if (/lääk/.test(q)) {
-      if (!an.oikeudet.laakkeet) return "Lääkitystiedot eivät kuulu roolisi ja arviointitilanteesi käyttötarkoitukseen, joten en näe niitä.";
-      const t = an.alueet.find((x) => x.id === "terveys");
-      const f = [...t.lahto, ...t.jalkeen].filter((x) => /lääkitys/i.test(x.teksti)).map((x) => esc(x.teksti));
-      const l = loyda(/LAAKITYS/);
-      return lista([...f, ...l.map(sigTeksti)]) || "Ei lääkitystietoja.";
-    }
-    if (/kaatu|vamma|huimau|liikku/.test(q)) {
-      const l = loyda(/KAATUMINEN|VAMMA|HUIMAUS/);
-      const al = an.alueet.find((x) => x.id === "liikkuminen");
-      return l.length ? lista(l.map(sigTeksti)) : `Ei kaatumisiin tai vammoihin liittyviä havaintoja. ${al.lahto.length ? "Lähtötilanteessa: " + al.lahto.map((x) => esc(x.teksti)).join("; ") : ""}`;
-    }
-    if (/mieli|masenn|ahdist|uni/.test(q)) { const l = loyda(/MIELIALA|UNI/); return l.length ? lista(l.map(sigTeksti)) + (an.oikeudet.lomakkeet ? "Voit täyttää PHQ-9- tai GAD-7-kyselyn asiakkaan kanssa – tulkinta on sinun." : "") : "Ei mielialaan liittyviä havaintoja näkyvissä tiedoissa."; }
-    if (/en näe|näe kaikk|rajattu|oikeu|käyttötarkoi/.test(q)) {
-      const ei = OIKEUS_NIMI.filter(([k]) => !an.oikeudet[k]).map(([, n]) => n);
-      return `Roolisi on ${esc(rooli().nimi)} ja arviointitilanne ${esc(A.TILANTEET[S.tilanne].nimi)}. ${ei.length ? `Näitä tietoja ei näytetä, koska ne eivät kuulu tämän tilanteen käyttötarkoitukseen: ${ei.map(esc).join(", ")}.` : "Näet kaikki tämän tilanteen kannalta sallitut tiedot."} Agentti käsittelee vain sallittuja tietoja.`;
-    }
-    return "En tunnistanut kysymystä. Kokeile esim. ”Mikä on muuttunut?”, ”Mihin havainnot perustuvat?”, ”Mitä kannattaa tarkistaa?”, ”Lääkitys” tai ”Kaatumiset”.";
+      setTimeout(() => $("#chatClose")?.focus(), 30);
+    } else if (oli) $("#fab").focus();
   }
 
   /* ---------- tooltip: hiiri, näppäimistö ja kosketus ---------- */
